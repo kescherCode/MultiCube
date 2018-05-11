@@ -1,5 +1,5 @@
-# RotatingCube
-A small C# console application to display a cube and rotate it, manually or automatically.
+# MultiCube
+A small C# console application to display multiple cubes in windows
 
 Controls:
 
@@ -8,10 +8,7 @@ Controls:
   - J and K rotate the cube up or down in the z-axis.
   - Hold ALT before holding any above keys and the cube will rotate faster.
   - Same goes for SHIFT, except it's going to rotate slower.
-  - Press M to toggle between manual (default) and automatic modes. Also note that you can't control the cube in this mode, not even with modifiers like SHIFT and ALT.
+  - Press M to toggle between manual (default) and automatic modes. Also note that you can't control the cube in this mode.
+  - Press number buttons 1 to 9 to change the selected window.
   - Press ESC to exit the program at any time.
-
-Nothing too special. Feel free to tell your friends it was yours or sell it (lol), it's public domain!<br>
-<a href="http://www.wtfpl.net/"><img
-       src="http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png"
-       width="80" height="15" alt="WTFPL" /></a>
+  
