@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace MultiCube
 {
-    class Cube
+    class Program
     {
         internal static class DllImports
         {
