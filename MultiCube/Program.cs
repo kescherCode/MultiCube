@@ -29,6 +29,7 @@ namespace MultiCube
             public static extern bool SetConsoleDisplayMode(IntPtr ConsoleOutput, uint Flags, out Coords NewScreenBufferDimensions);
         }
 
+        const int LEDGE_LENGTH = 25;
         static IEnumerable<CornerData> lines;
         static ConsoleKeyInfo keyPress;
         static bool altDown, shiftDown;
@@ -46,8 +47,6 @@ namespace MultiCube
         {
             Console.CursorVisible = false;
             Console.InputEncoding = Console.OutputEncoding = Encoding.Unicode;
-            Console.BufferHeight = Console.WindowHeight = 30;
-            Console.BufferWidth = Console.WindowWidth = 60;
             Console.Title = "Press ESC to exit | Rotating Cube Demo by Jeremy Kescher";
             SetFullscreen();
         }
@@ -55,18 +54,21 @@ namespace MultiCube
         {
             foreach (CornerData line in lines)
             {
-                for (int i = 0; i < 25; i++)
+                for (int i = 0; i < LEDGE_LENGTH; i++)
                 {
                     // Find a point between A and B by following formula p=a+z(b-a) where z
                     // is a value between 0 and 1.
                     var point = line.a + (i * 1.0f / 24) * (line.b - line.a);
-                    // Rotates the point relative to all the angles.
+                    // Rotates the point relative to all the angles given to the method.
                     Point3D r = point.RotateX(angX).RotateY(angY).RotateZ(angZ);
                     // Projects the point into 2d space. Acts as a kind of camera setting.
-                    Point3D q = r.Project(40, 40, 350, 4);
-                    // Setting the cursor to a projecting position
-                    Console.SetCursorPosition(((int)q.x + 800) / 10, ((int)q.y + 200) / 10);
-                    Console.Write('*'); // █
+                    Point3D q = r.Project(0, 0, 200, 3);
+                    // Setting the cursor to the proper positions
+                    int x = ((int)(q.x + Console.WindowWidth * 2.5) / 5);
+                    int y = ((int)(q.y + Console.WindowHeight * 2.5) / 5);
+                    Console.SetCursorPosition(x, y);
+
+                    Console.Write('°'); // Max Wichmann suggested this symbol
                 }
             }
         }
@@ -75,8 +77,8 @@ namespace MultiCube
         {
             IntPtr consoleSession = DllImports.GetStdHandle(DllImports.CONSOLE);   // get handle for current console session
             DllImports.SetConsoleDisplayMode(consoleSession, 1, out _); // set the console to fullscreen
-            // Note: 'out _' instantly disposes the out parameter. I only use the Coords struct in order to make the imported function work.
-            Console.SetBufferSize(Console.BufferWidth, Console.BufferHeight);
+            // Note: 'out _' instantly disposes the out parameter.
+            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
         }
         static void Main()
         {
@@ -107,9 +109,11 @@ namespace MultiCube
             Random randFactor = new Random();
             bool exit = false;
             bool manualControl = true;
-            float rotationFactor = 1f;
+            float rotationFactor;
             while (!exit)
             {
+                SetFullscreen();
+                //Console.Write("Height: " + Console.WindowHeight + "\tWidth: " + Console.WindowWidth); // Debug
                 Print2DProjection(angX, angY, angZ);
                 if (manualControl)
                 {
@@ -172,7 +176,7 @@ namespace MultiCube
                     angX += randFactor.Next(0, 3);
                     angY += randFactor.Next(0, 3);
                     angZ += randFactor.Next(0, 3);
-                    System.Threading.Thread.Sleep(25);
+                    System.Threading.Thread.Sleep(10);
                 }
                 Console.Clear();
                 Console.CursorVisible = false; // Workaround for cursor being visible if you click into the window
