@@ -10,7 +10,7 @@ namespace MultiCube
     {
         static ConsoleKeyInfo keyPress;
         static bool altDown, shiftDown;
-        const int WINDOW_HEIGHT = 35, WINDOW_WIDTH = 35;
+        const int VSCREEN_HEIGHT = 35, VSCREEN_WIDTH = 35;
         static void Init()
         {
             Console.CursorVisible = false;
@@ -19,9 +19,13 @@ namespace MultiCube
             SetFullscreen();
 
             int x = 0, y = 0;
-            for (; y < Console.WindowHeight; y += 35)
+            for (; y < Console.WindowHeight; y += VSCREEN_HEIGHT)
             {
+                for (; x < Console.WindowWidth; x += VSCREEN_WIDTH)
+                {
 
+                }
+                x = 0;
             }
         }
 
