@@ -6,8 +6,61 @@ using System.Runtime.InteropServices;
 
 namespace MultiCube
 {
+    class Screen
+    {
+        // lines[y, x] because my thought process says "first look at the height, then the position on that line" on a grid.
+        private char[,] lines; // Not List<string> because a String's indexer is read-only.
+        private char[,] prevLines;
+        int lineWidth, lineCount, xOffset, yOffset;
+
+        public Screen(int height, int width, int xOffset = 0, int yOffset = 0)
+        {
+            Console.Clear();
+            lines = new char[height, width];
+            for (int y = 0; y < lineCount; y++)
+                for (int x = 0; x < lineWidth; x++)
+                    lines[y, x] = ' ';
+            prevLines = (char[,])lines.Clone();
+
+            lineWidth = width;
+            lineCount = height;
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+        }
+        public void Push(string s, int x, int y)
+        {
+            if (s.Length <= lineWidth - x - 1 && y <= lineCount)
+            {
+                for (int i = x; i < s.Length; i++, x++)
+                {
+                    lines[y, x] = s[i];
+                }
+            }
+            else throw new ArgumentException($"String was too long for that position or you picked the wrong x/y coordinates.\ns: {s} x: {x} y: {y}\nMaximum value of x: {lineWidth - 1}\nMaximum value of y: {lineCount - 1}");
+        }
+        public void Push(char c, int x, int y)
+        {
+            if (x <= lineWidth - 1 && y <= lineCount - 1)
+            {
+                lines[y, x] = c;
+            }
+            else throw new ArgumentException($"You picked the wrong x/y coordinates.\nc: {c} x: {x} y: {y}\nMaximum value of x: {lineWidth - 1}\nMaximum value of y: {lineCount - 1}");
+        }
+        public void Refresh()
+        {
+            for (int y = 0; y < lineCount; y++)
+                for (int x = 0; x < lineWidth; x++)
+                    if (lines[y, x] != prevLines[y, x])
+                    {
+                        Console.SetCursorPosition(x + xOffset, y + yOffset);
+                        Console.Write(lines[y, x]);
+                        prevLines[y, x] = lines[y, x];
+                    }
+        }
+    }
     class Program
     {
+
         internal static class DllImports
         {
             [StructLayout(LayoutKind.Sequential)]
