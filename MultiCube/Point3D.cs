@@ -58,11 +58,10 @@ namespace MultiCube
         }
 
         // Project the current Point into 2D plotted space using X and Y axis'
-        public Point3D Project(float width, float height, float projectionSize, float fov)
+        public Point3D Project(float projectionSize, float fov)
         {
             float factor = projectionSize / (fov + z);
-            Point3D p = new Point3D(x, y, z);
-            return new Point3D(p.x * factor + width / 2, -p.y * factor + height / 2, 1);
+            return new Point3D(x * factor, -y * factor, 1);
         }
 
         // Returns the sum of all coordinates squared.
