@@ -44,7 +44,7 @@ namespace MultiCube
             this.size = size;
             this.fov = fov;
         }
-        public void Print2DProjection(float angX, float angY, float angZ/*, ref Screen screen*/)
+        public void Print2DProjection(float angX, float angY, float angZ, ref VScreen screen)
         {
             foreach (CornerData line in lines)
             {
@@ -58,11 +58,10 @@ namespace MultiCube
                     // Projects the point into 2d space. Acts as a kind of camera setting.
                     Point3D q = r.Project(100, 3);
                     // Setting the cursor to the proper positions
-                    int x = ((int)(q.x + Console.WindowWidth * 2.5) / 5);
-                    int y = ((int)(q.y + Console.WindowHeight * 2.5) / 5);
-                    Console.SetCursorPosition(x, y);
+                    int x = ((int)(q.x + screen.WindowWidth * 2.5) / 5);
+                    int y = ((int)(q.y + screen.WindowHeight * 2.5) / 5);
 
-                    Console.Write('°'); // Max Wichmann suggested this symbol
+                    screen.Push('°', x, y); // Max Wichmann suggested this symbol
                 }
             }
         }

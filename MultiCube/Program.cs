@@ -10,20 +10,21 @@ namespace MultiCube
     {
         static ConsoleKeyInfo keyPress;
         static bool altDown, shiftDown;
-        const int VSCREEN_HEIGHT = 35, VSCREEN_WIDTH = 35;
-        static void Init()
+        const int VSCREEN_HEIGHT = 50, VSCREEN_WIDTH = 50;
+        static List<VScreen> Init()
         {
+            List<VScreen> screens = new List<VScreen>();
             Console.CursorVisible = false;
             Console.InputEncoding = Console.OutputEncoding = Encoding.Unicode;
             Console.Title = "MultiCube (DirectCube 9)";
             SetFullscreen();
 
             int x = 0, y = 0;
-            for (; y < Console.WindowHeight; y += VSCREEN_HEIGHT)
+            for (; y < Console.WindowHeight - VSCREEN_HEIGHT + 1; y += VSCREEN_HEIGHT + 1)
             {
-                for (; x < Console.WindowWidth; x += VSCREEN_WIDTH)
+                for (; x < Console.WindowWidth - VSCREEN_WIDTH + 1; x += VSCREEN_WIDTH + 1)
                 {
-
+                    screens.Add(new VScreen(VSCREEN_HEIGHT, VSCREEN_WIDTH, x, y));
                 }
                 x = 0;
             }
@@ -41,6 +42,10 @@ namespace MultiCube
         static void Main()
         {
             Init();
+            int fheight = Console.WindowHeight;
+            int fwidth = Console.WindowWidth;
+
+            VScreen screen = new VScreen(35, 35);
             Cube cube = new Cube();
 
             // Starting angle
@@ -52,10 +57,12 @@ namespace MultiCube
             float rotationFactor;
             while (!exit)
             {
-                SetFullscreen();
-                Console.SetCursorPosition(0, 0);                                                      // Debug
-                Console.Write("Height: " + Console.WindowHeight + "\tWidth: " + Console.WindowWidth); // Debug
-                cube.Print2DProjection(angX, angY, angZ);
+                if (fheight == Console.WindowHeight || fwidth == Console.WindowWidth) ; else SetFullscreen();
+                //Console.SetCursorPosition(0, 0);                                                      // Debug
+                //Console.Write("Height: " + Console.WindowHeight + "\tWidth: " + Console.WindowWidth); // Debug
+                screen.Clear();
+                cube.Print2DProjection(angX, angY, angZ, ref screen);
+                screen.Refresh();
                 if (manualControl)
                 {
                     keyPress = Console.ReadKey(true);
@@ -149,7 +156,6 @@ namespace MultiCube
                     angZ += random.Next(0, 3);
                     Thread.Sleep(10);
                 }
-                Console.Clear();
                 Console.CursorVisible = false; // Workaround for cursor staying visible if you click into the window once
             }
         }

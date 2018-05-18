@@ -2,11 +2,11 @@
 
 namespace MultiCube
 {
-    class Screen
+    class VScreen
     {
+        private readonly char[,] empty;
         /* Lines[y, x] because my thought process says "first look at the height (y), then the position on that line (x)" on a grid,
            so that design choice was made because it was easier for me to keep in mind while coding. */
-
         public char[,] Lines { get; private set; } // Not List<string> because a String's indexer is read-only.
         public char[,] PrevLines { get; private set; }
         public int WindowWidth { get; }
@@ -14,21 +14,23 @@ namespace MultiCube
         public int XOffset { get; }
         public int YOffset { get; }
 
-        public Screen(int height, int width, int xOffset = 0, int yOffset = 0)
+        public VScreen(int height, int width, int xOffset = 0, int yOffset = 0)
         {
             // We have to initialise both output memories with spaces
             Lines = new char[height, width];
+            PrevLines = new char[height, width];
+            empty = new char[height, width];
             for (int y = 0; y < WindowHeight; y++)
                 for (int x = 0; x < WindowWidth; x++)
-                    Lines[y, x] = PrevLines[y, x] = ' ';
+                    Lines[y, x] = PrevLines[y, x] = empty[y, x] = ' ';
 
             if (width > Console.WindowWidth) throw new ArgumentOutOfRangeException($"width (current value: {width}) was greater than the console window's size.");
             if (width < 1) throw new ArgumentOutOfRangeException($"width (current value: {width}) requires a positive value.");
 
             if (height > Console.WindowHeight) throw new ArgumentOutOfRangeException($"width (current value: {width}) was greater than the console window's size.");
             if (height < 1) throw new ArgumentOutOfRangeException($"width (current value: {width}) requires a positive value.");
-            Console.WindowWidth = width;
-            Console.WindowHeight = height;
+            WindowWidth = width;
+            WindowHeight = height;
             XOffset = xOffset;
             YOffset = yOffset;
         }
@@ -62,14 +64,18 @@ namespace MultiCube
                         PrevLines[y, x] = Lines[y, x];
                     }
         }
-        public void Clear()
+        public void FullOutput()
         {
             for (int y = 0; y < WindowHeight; y++)
                 for (int x = 0; x < WindowWidth; x++)
                 {
                     Console.SetCursorPosition(x + XOffset, y + YOffset);
-                    Console.Write(' ');
+                    Console.Write(Lines[y, x]);
                 }
+        }
+        public void Clear()
+        {
+            Lines = (char[,])empty.Clone();
         }
     }
 }
