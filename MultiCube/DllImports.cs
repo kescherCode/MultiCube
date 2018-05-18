@@ -5,6 +5,8 @@ namespace MultiCube
 {
     static class DllImports
     {
+        /* Source: https://social.msdn.microsoft.com/Forums/vstudio/en-US/0b374f73-5604-48ee-a720-53bb5b19467b/maximizing-the-console-window
+          Modified to only include what I need to make the console window go fullscreen*/
         [StructLayout(LayoutKind.Sequential)]
         public struct Coords
         {

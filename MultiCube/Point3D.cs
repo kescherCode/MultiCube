@@ -17,13 +17,13 @@ namespace MultiCube
 
         public Point3D RotateX(float angle)
         {
-            float rad = angle * (float)Math.PI / 180;
+            float radius = angle * (float)Math.PI / 180;
 
-            float cosa = (float)Math.Cos(rad);
-            float sina = (float)Math.Sin(rad);
+            float cosa = (float)Math.Cos(radius);
+            float sina = (float)Math.Sin(radius);
 
             float oldY = y;
-            // New Y and Z axis'
+            // New Y and Z coordinates'
             y = y * cosa - z * sina;
             z = oldY * sina + z * cosa;
             return this;
@@ -31,13 +31,13 @@ namespace MultiCube
 
         public Point3D RotateY(float angle)
         {
-            float rad = angle * (float)Math.PI / 180;
+            float radius = angle * (float)Math.PI / 180;
 
-            float cosa = (float)Math.Cos(rad);
-            float sina = (float)Math.Sin(rad);
+            float cosa = (float)Math.Cos(radius);
+            float sina = (float)Math.Sin(radius);
 
             float oldX = x;
-            // New X and Z axis'
+            // New X and Z coordinates'
             x = z * sina + x * cosa;
             z = z * cosa - oldX * sina;
             return this;
@@ -45,10 +45,10 @@ namespace MultiCube
 
         public Point3D RotateZ(float angle)
         {
-            float rad = angle * (float)Math.PI / 180;
+            float radius = angle * (float)Math.PI / 180;
 
-            float cosa = (float)Math.Cos(rad);
-            float sina = (float)Math.Sin(rad);
+            float cosa = (float)Math.Cos(radius);
+            float sina = (float)Math.Sin(radius);
 
             float oldX = x;
             // New X and Y axis'
@@ -92,5 +92,19 @@ namespace MultiCube
             p.z += right.z;
             return p;
         }
+
+        public static bool operator ==(Point3D left, Point3D right) => left.x == right.x &&
+                                                                       left.y == right.y &&
+                                                                       left.z == right.z;
+        public static bool operator !=(Point3D left, Point3D right) => !(left == right);
+        public override bool Equals(Object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            Point3D point = (Point3D)obj;
+            return (x == point.x && y == point.y && z == point.z);
+        }
+        public override int GetHashCode() => new { x, y, z }.GetHashCode();
     }
 }

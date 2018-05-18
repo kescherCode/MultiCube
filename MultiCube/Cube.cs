@@ -18,7 +18,7 @@ namespace MultiCube
         }
 
         const int LEDGE_LENGTH = 25; // If we draw more characters than that, it starts becoming a grid.
-        private readonly int size, fov;
+        private readonly float size, fov;
 
         private readonly static List<Point3D> corners = new List<Point3D>
             {
@@ -39,12 +39,12 @@ namespace MultiCube
             where (a - b).Length == 2 && a.x + a.y + a.z > b.x + b.y + b.z
             select new CornerData(a, b);
 
-        public Cube(int size = 100, int fov = 3)
+        public Cube(float size, float fov = 3)
         {
             this.size = size;
             this.fov = fov;
         }
-        public void Print2DProjection(float angX, float angY, float angZ, ref VScreen screen)
+        public void Print2DProjection(float angleX, float angleY, float angleZ, VScreen screen)
         {
             foreach (CornerData line in lines)
             {
@@ -54,9 +54,9 @@ namespace MultiCube
                     // is a value between 0 and 1.
                     var point = line.a + (i * 1.0f / 24) * (line.b - line.a);
                     // Rotates the point relative to all the angles given to the method.
-                    Point3D r = point.RotateX(angX).RotateY(angY).RotateZ(angZ);
+                    Point3D r = point.RotateX(angleX).RotateY(angleY).RotateZ(angleZ);
                     // Projects the point into 2d space. Acts as a kind of camera setting.
-                    Point3D q = r.Project(100, 3);
+                    Point3D q = r.Project(size, fov);
                     // Setting the cursor to the proper positions
                     int x = ((int)(q.x + screen.WindowWidth * 2.5) / 5);
                     int y = ((int)(q.y + screen.WindowHeight * 2.5) / 5);
