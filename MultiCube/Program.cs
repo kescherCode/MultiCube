@@ -8,20 +8,16 @@ namespace MultiCube
 {
     class Program
     {
-        const int VSCREEN_HEIGHT = 30, VSCREEN_WIDTH = 50;
+        const int FPS = 60, FRAMETIME = 1000 / FPS;
+        const int VSCREEN_HEIGHT = 30, VSCREEN_WIDTH = 30, MAX_SCREEN_COUNT = 10;
         const float ZOOM_FACTOR = 3.2f;
         static void Intro()
         {
             Console.WriteLine("MultiCube, a new adaptation of RotatingCube, an older program of mine that improves on it in the following ways:");
-            Thread.Sleep(1000);
             Console.WriteLine("\t- Lots of magic numbers floating around in the code have been put into constant fields");
-            Thread.Sleep(1000);
             Console.WriteLine("\t- A huge monolith has been seperated into classes for a better overview");
-            Thread.Sleep(1000);
             Console.WriteLine("\t- More comments, to better understand some of the more difficult parts of the code");
-            Thread.Sleep(1000);
             Console.WriteLine("\t- Multiple cubes can be displayed at a time now and controlled seperately");
-            Thread.Sleep(1000);
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
@@ -35,7 +31,7 @@ namespace MultiCube
             Console.InputEncoding = Console.OutputEncoding = Encoding.Unicode;
 
             Console.Title = "MultiCube";
-            Intro();
+            //Intro();
 
             SetFullscreen();
 
@@ -43,24 +39,27 @@ namespace MultiCube
             for (int y = 0; y < (Console.WindowHeight - VSCREEN_HEIGHT + 1); y += VSCREEN_HEIGHT + 1)
             {
                 int x = 0;
-                // VSCREEN_* + 1 because I want to leave space for the borders of the virtual screens
+                // VSCREEN_* + 1 since we want to leave space for the borders.
                 for (; x < Console.WindowWidth - VSCREEN_WIDTH + 1; x += VSCREEN_WIDTH + 1)
                 {
-                    screens.Add(new VScreen(VSCREEN_HEIGHT, VSCREEN_WIDTH, x, y));
-                    x += VSCREEN_WIDTH;
-                    for (int h = 0; h < y + VSCREEN_HEIGHT; h++)
+                    if (screens.Count != MAX_SCREEN_COUNT)
                     {
-                        Console.SetCursorPosition(x, h);
-                        Console.Write('█');
-                    }
-                    x -= VSCREEN_WIDTH;
+                        screens.Add(new VScreen(VSCREEN_HEIGHT, VSCREEN_WIDTH, x, y));
 
-                    if (screens.Count == 10)
-                    {
-                        end = true;
-                        break;
+                        // Print vertical right-hand screen border for each screen
+                        x += VSCREEN_WIDTH;
+                        for (int h = 0; h < y + VSCREEN_HEIGHT; h++)
+                        {
+                            Console.SetCursorPosition(x, h);
+                            Console.Write('█');
+                        }
+                        x -= VSCREEN_WIDTH;
+
                     }
+                    else break;
                 }
+
+                // Print horizontal bottom screen row borders
                 y += VSCREEN_HEIGHT;
                 for (int w = 0; w < x; w++)
                 {
@@ -68,15 +67,16 @@ namespace MultiCube
                     Console.Write('█');
                 }
                 y -= VSCREEN_HEIGHT;
+
                 if (end) break;
             }
             return screens;
         }
 
+        /* Note: This method does nothing on 64-bit machines, because
+           executing this in 64-bit will do nothing as SetConsoleDisplayMode is not supported anymore. */
         static void SetFullscreen()
         {
-            /* Note: This method limits the program to 32-bit compatibility, because
-               executing this in 64-bit will do nothing as SetConsoleDisplayMode is not supported anymore. */
             IntPtr consoleSession = DllImports.GetStdHandle(DllImports.CONSOLE);   // get handle for current console session
             DllImports.SetConsoleDisplayMode(consoleSession, 1, out _); // set the console to fullscreen
             // Note: 'out _' instantly disposes the out parameter.
@@ -87,61 +87,73 @@ namespace MultiCube
             List<VScreen> screens = Init();
             if (screens.Count < 1)
             {
-                throw new AggregateException("Your screen was too small to assign virtual screens to.");
+                // Happens when you enable 64-bit builds in the project properties since SetFullscreen() doesn't work.
+                throw new AggregateException("\nYour screen was too small to assign virtual screens to. Since you're on 64-bit, please adjust your default cmd.exe window size:\n" +
+                    "\tOpen a new command prompt (cmd.exe).\n" +
+                    "\tClick \"Defaults\" (or \"Standardwerte\")\n" +
+                    "\tOn the tab \"Layout\", increase width (and perhaps height, too)\n" +
+                    "\tOn the tab \"Font\" / \"Schriftart\", decrease your font size a bit.\n" +
+                    "\tOR\n" +
+                    "\tRecommended settings:\n" +
+                    "\tRaster Fonts / Rasterschriftart\n" +
+                    "8 x 12");
             }
+
             List<Cube> cubes = new List<Cube>();
+
+            // Flag for manual or automatic cube movement.
             List<bool> manualControl = new List<bool>();
+
+            // "Camera position" for the cubes
             List<float> angleX = new List<float>();
             List<float> angleY = new List<float>();
             List<float> angleZ = new List<float>();
 
-            foreach (var screen in screens)
+            foreach (VScreen screen in screens)
             {
                 cubes.Add(
                     new Cube(
                         Math.Min(VSCREEN_HEIGHT * ZOOM_FACTOR, VSCREEN_WIDTH * ZOOM_FACTOR)
                         )
                     );
+
+                // By default, all cubes are controlled manually.
                 manualControl.Add(true);
+
+                // Default "camera position" for each cube
                 angleX.Add(0f);
                 angleY.Add(0f);
                 angleZ.Add(0f);
 
-                // print fresh cubes on all available screens
+                // print the cubes on the current screen
                 new Cube(
                     Math.Min(VSCREEN_HEIGHT * ZOOM_FACTOR, VSCREEN_WIDTH * ZOOM_FACTOR)
                     ).Print2DProjection(0f, 0f, 0f, screen);
                 screen.Refresh();
             }
+
             int sel = 0;
-            int fheight = Console.WindowHeight;
-            int fwidth = Console.WindowWidth;
+            int fheight = Console.WindowHeight; // Used to check whether the user tried resizing the window
+            int fwidth = Console.WindowWidth;   //
 
             // Starting angle
             // If escape is pressed later, the program will exit
             Random random = new Random();
             bool exit = false;
             float rotationFactor = 1f;
-            ConsoleKeyInfo keyPress;
+            ConsoleKeyInfo keyPress = new ConsoleKeyInfo();
+            DateTime start = DateTime.Now;
             while (!exit)
             {
-                // Let's keep the float values below 360f, otherwise, they don't make much sense.
-                if (angleX[sel] > 360f) angleX[sel] -= 360f;
-                else if (angleX[sel] < -360f) angleX[sel] += 360f;
-
-                if (angleY[sel] > 360f) angleY[sel] -= 360f;
-                else if (angleY[sel] < -360f) angleY[sel] += 360f;
-
-                if (angleZ[sel] > 360f) angleZ[sel] -= 360f;
-                else if (angleZ[sel] < -360f) angleZ[sel] += 360f;
-
-                if (fheight == Console.WindowHeight || fwidth == Console.WindowWidth) ; // Most likely case first
+                if (fheight == Console.WindowHeight || fwidth == Console.WindowWidth) { } // Most likely case first -> Small performance optimization
                 else SetFullscreen();
                 //Console.SetCursorPosition(0, 0);                                                      // Debug
                 //Console.Write("Height: " + Console.WindowHeight + "\tWidth: " + Console.WindowWidth); // Debug
+
+                // Updating the currently selected screen
                 screens[sel].Clear();
                 cubes[sel].Print2DProjection(angleX[sel], angleY[sel], angleZ[sel], screens[sel]);
-                screens[sel].Refresh();
+
                 if (Console.KeyAvailable)
                 {
                     keyPress = Console.ReadKey(true);
@@ -149,27 +161,30 @@ namespace MultiCube
                     {
                         #region Keypresses
                         case ConsoleKey.W:
-                            angleX[sel] += rotationFactor;
+                            if (manualControl[sel]) angleX[sel] += rotationFactor;
                             break;
                         case ConsoleKey.A:
-                            angleY[sel] += rotationFactor;
+                            if (manualControl[sel]) angleY[sel] += rotationFactor;
                             break;
                         case ConsoleKey.S:
-                            angleX[sel] -= rotationFactor;
+                            if (manualControl[sel]) angleX[sel] -= rotationFactor;
                             break;
                         case ConsoleKey.D:
-                            angleY[sel] -= rotationFactor;
+                            if (manualControl[sel]) angleY[sel] -= rotationFactor;
                             break;
                         case ConsoleKey.J:
-                            angleZ[sel] += rotationFactor;
+                            if (manualControl[sel]) angleZ[sel] += rotationFactor;
                             break;
                         case ConsoleKey.K:
-                            angleZ[sel] -= rotationFactor;
+                            if (manualControl[sel]) angleZ[sel] -= rotationFactor;
                             break;
                         case ConsoleKey.R:
-                            angleX[sel] = 0f;
-                            angleY[sel] = 0f;
-                            angleZ[sel] = 0f;
+                            if (manualControl[sel])
+                            {
+                                angleX[sel] = 0f;
+                                angleY[sel] = 0f;
+                                angleZ[sel] = 0f;
+                            }
                             break;
                         case ConsoleKey.M:
                             manualControl[sel] = !manualControl[sel];
@@ -220,39 +235,61 @@ namespace MultiCube
                             #endregion
                     }
                 }
+
                 if (manualControl[sel])
                 {
-                    if (Console.KeyAvailable)
+                    bool altDown, shiftDown;
+                    altDown = (keyPress.Modifiers & ConsoleModifiers.Alt) != 0;
+                    shiftDown = (keyPress.Modifiers & ConsoleModifiers.Shift) != 0;
+                    if (shiftDown)
                     {
-                        keyPress = Console.ReadKey(true);
-                        bool altDown, shiftDown;
-                        altDown = (keyPress.Modifiers & ConsoleModifiers.Alt) != 0;
-                        shiftDown = (keyPress.Modifiers & ConsoleModifiers.Shift) != 0;
-                        if (shiftDown)
-                        {
-                            if (altDown) rotationFactor = 1f;
-                            else rotationFactor = 0.5f;
-                        }
-                        else if (altDown) rotationFactor = 2f;
-                        else rotationFactor = 1f;
+                        if (altDown) rotationFactor = 1f;
+                        else rotationFactor = 0.5f;
                     }
+                    else if (altDown) rotationFactor = 2f;
                     else rotationFactor = 1f;
                 }
-                else
+
+                DateTime autoStart = DateTime.Now;
+                for (int i = 0; i < screens.Count; i++)
                 {
-                    switch (random.Next(1, 4))
+                    //new Thread(() =>
+                    //{
+                    //    Thread.CurrentThread.IsBackground = true;
+                    //    Console.Beep(587, 500);
+                    //    Console.Beep(698, 500);
+                    //    Console.Beep(880, 500);
+                    //    Console.Beep(880, 500);
+                    //    Console.Beep(988, 800);
+                    //}).Start();
+                    if (!manualControl[i])
                     {
-                        case 1:
-                            angleX[sel] += random.Next(0, 3);
-                            break;
-                        case 2:
-                            angleY[sel] += random.Next(0, 3);
-                            break;
-                        case 3:
-                            angleZ[sel] += random.Next(0, 3);
-                            break;
+                        switch (random.Next(1, 4))
+                        {
+                            case 1:
+                                angleX[i] += random.Next(0, 3);
+                                break;
+                            case 2:
+                                angleY[i] += random.Next(0, 3);
+                                break;
+                            case 3:
+                                angleZ[i] += random.Next(0, 3);
+                                break;
+                        }
+                        if (i != sel)
+                        {
+                            // Updating the screen
+                            screens[i].Clear();
+                            cubes[i].Print2DProjection(angleX[i], angleY[i], angleZ[i], screens[i]);
+                        }
                     }
-                    Thread.Sleep(10);
+                    if ((DateTime.Now - autoStart).TotalMilliseconds < 10) Thread.Sleep(10 - (int)(DateTime.Now - autoStart).TotalMilliseconds);
+                }
+
+                if ((DateTime.Now - start).TotalMilliseconds > 16.7)
+                {
+                    screens.ForEach(screen => screen.Refresh());
+                    start = DateTime.Now;
                 }
                 Console.CursorVisible = false; // Workaround for cursor staying visible if you click into the window once
             }
