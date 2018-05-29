@@ -4,15 +4,15 @@ namespace MultiCube
 {
     class Point3D
     {
-        public float x;
-        public float y;
-        public float z;
+        public float X;
+        public float Y;
+        public float Z;
 
-        public Point3D(float X, float Y, float Z)
+        public Point3D(float x, float y, float z)
         {
-            x = X;
-            y = Y;
-            z = Z;
+            X = x;
+            Y = y;
+            Z = z;
         }
 
         public Point3D RotateX(float angle)
@@ -22,10 +22,10 @@ namespace MultiCube
             float cosa = (float)Math.Cos(radius);
             float sina = (float)Math.Sin(radius);
 
-            float oldY = y;
+            float oldY = Y;
             // New Y and Z coordinates'
-            y = y * cosa - z * sina;
-            z = oldY * sina + z * cosa;
+            Y = Y * cosa - Z * sina;
+            Z = oldY * sina + Z * cosa;
             return this;
         }
 
@@ -36,10 +36,10 @@ namespace MultiCube
             float cosa = (float)Math.Cos(radius);
             float sina = (float)Math.Sin(radius);
 
-            float oldX = x;
+            float oldX = X;
             // New X and Z coordinates'
-            x = z * sina + x * cosa;
-            z = z * cosa - oldX * sina;
+            X = Z * sina + X * cosa;
+            Z = Z * cosa - oldX * sina;
             return this;
         }
 
@@ -50,52 +50,52 @@ namespace MultiCube
             float cosa = (float)Math.Cos(radius);
             float sina = (float)Math.Sin(radius);
 
-            float oldX = x;
+            float oldX = X;
             // New X and Y axis'
-            x = x * cosa - y * sina;
-            y = y * cosa + oldX * sina;
+            X = X * cosa - Y * sina;
+            Y = Y * cosa + oldX * sina;
             return this;
         }
 
         // Project the current Point into 2D plotted space using X and Y axis'
         public Point3D Project(float projectionSize, float fov)
         {
-            float factor = projectionSize / (fov + z);
-            return new Point3D(x * factor, -y * factor, 1);
+            float factor = projectionSize / (fov + Z);
+            return new Point3D(X * factor, -Y * factor, 1);
         }
 
         // Returns the sum of all coordinates squared.
-        public float Length { get { return (float)Math.Sqrt(x * x + y * y + z * z); } }
+        public float Length { get { return (float)Math.Sqrt(X * X + Y * Y + Z * Z); } }
         public static Point3D operator *(float scale, Point3D x)
         {
-            Point3D p = new Point3D(x.x, x.y, x.z);
-            p.x *= scale;
-            p.y *= scale;
-            p.z *= scale;
+            Point3D p = new Point3D(x.X, x.Y, x.Z);
+            p.X *= scale;
+            p.Y *= scale;
+            p.Z *= scale;
             return p;
         }
 
         public static Point3D operator -(Point3D left, Point3D right)
         {
-            Point3D p = new Point3D(left.x, left.y, left.z);
-            p.x -= right.x;
-            p.y -= right.y;
-            p.z -= right.z;
+            Point3D p = new Point3D(left.X, left.Y, left.Z);
+            p.X -= right.X;
+            p.Y -= right.Y;
+            p.Z -= right.Z;
             return p;
         }
 
         public static Point3D operator +(Point3D left, Point3D right)
         {
-            Point3D p = new Point3D(left.x, left.y, left.z);
-            p.x += right.x;
-            p.y += right.y;
-            p.z += right.z;
+            Point3D p = new Point3D(left.X, left.Y, left.Z);
+            p.X += right.X;
+            p.Y += right.Y;
+            p.Z += right.Z;
             return p;
         }
 
-        public static bool operator ==(Point3D left, Point3D right) => left.x == right.x &&
-                                                                       left.y == right.y &&
-                                                                       left.z == right.z;
+        public static bool operator ==(Point3D left, Point3D right) => left.X == right.X &&
+                                                                       left.Y == right.Y &&
+                                                                       left.Z == right.Z;
         public static bool operator !=(Point3D left, Point3D right) => !(left == right);
         public override bool Equals(Object obj)
         {
@@ -103,8 +103,8 @@ namespace MultiCube
                 return false;
 
             Point3D point = (Point3D)obj;
-            return (x == point.x && y == point.y && z == point.z);
+            return (X == point.X && Y == point.Y && Z == point.Z);
         }
-        public override int GetHashCode() => new { x, y, z }.GetHashCode();
+        public override int GetHashCode() => new { X, Y, Z }.GetHashCode();
     }
 }

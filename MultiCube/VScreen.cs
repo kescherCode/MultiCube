@@ -17,7 +17,7 @@ namespace MultiCube
 
         public VScreen(int height, int width, int xOffset = 0, int yOffset = 0)
         {
-            // We have to initialise both output memories with spaces
+            // We have to initialise both output memories with spaces. empty[,] is serving
             Lines = new char[height, width];
             PrevLines = new char[height, width];
             empty = new char[height, width];
