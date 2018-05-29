@@ -103,8 +103,8 @@ namespace MultiCube
 
             if (rk.GetValue("showTutorial", 0).Equals(1)) Intro();
             // Dynamic virtual screen sizes
-            vheight = (int)(Console.WindowHeight / 2.1);
-            vwidth = (int)(Console.WindowWidth / 5.1);
+            vheight = (int)(Console.WindowHeight / 2.5);
+            vwidth = (int)(Console.WindowWidth / 5.5);
 
             bool end = false;
             for (int y = 0; y < (Console.WindowHeight - vheight + 1); y += vheight + 1)
