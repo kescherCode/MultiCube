@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace MultiCube
@@ -12,6 +13,7 @@ namespace MultiCube
         const float ZOOM_FACTOR = 3.2f;
         const char H_BORDER_CHAR = '-';
         const char V_BORDER_CHAR = '|';
+        static readonly TimeSpan autoLimit = new TimeSpan(20000);
 
         static void Intro()
         {
@@ -23,7 +25,7 @@ namespace MultiCube
             Console.WriteLine();
             Console.Write("Press F to ");
             string respects = "pay respects";
-            string disable = "disable this message for your system globally.";
+            string disable = "disable this message for your user account.";
 
             #region Easter Egg
             for (int i = 0; i < respects.Length; i++)
@@ -31,6 +33,7 @@ namespace MultiCube
                 Console.Write(respects[i]);
                 Thread.Sleep(30);
             }
+            Thread.Sleep(300);
             for (int i = 0; i < respects.Length; i++)
             {
                 if (Console.CursorLeft != 0)
@@ -145,6 +148,7 @@ namespace MultiCube
         }
         static void Main()
         {
+            Stopwatch watch = new Stopwatch();
             byte enableCombination = 0;
 
             Init(out List<VScreen> screens, out int vheight, out int vwidth);
@@ -173,7 +177,7 @@ namespace MultiCube
                     sc[sel].ProcessKeypress(ref keyPress, ref rotationFactor, ref exit, ref sel, ref enableCombination);
                 }
 
-                DateTime autoStart = DateTime.Now;
+                watch.Restart();
                 for (int i = 0; i < sc.Count; i++)
                 {
                     sc[i].Autorotate();
@@ -183,7 +187,8 @@ namespace MultiCube
                         sc[i].Cube.Update2DProjection(sc[i].AngleX, sc[i].AngleY, sc[i].AngleZ, screens[i]);
                     }
                 }
-                Thread.Sleep((DateTime.Now - autoStart).TotalMilliseconds < 1.1 ? 1 : 0); // We want a minimum of 1ms sleep after auto rotating the cubes.
+                watch.Stop();
+                if (autoLimit > watch.Elapsed) Thread.Sleep(autoLimit - watch.Elapsed);
 
                 screens.ForEach(screen => screen.Refresh());
                 Console.CursorVisible = false; // Workaround for cursor staying visible if you click into the window once
