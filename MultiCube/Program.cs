@@ -10,7 +10,8 @@ namespace MultiCube
         static readonly RegistryKey rk = Registry.CurrentUser.CreateSubKey("SOFTWARE\\MultiCube");
         const int MAX_SCREEN_COUNT = 10;
         const float ZOOM_FACTOR = 3.2f;
-        const char BORDER_CHAR = '-';
+        const char H_BORDER_CHAR = '-';
+        const char V_BORDER_CHAR = '|';
 
         static void Intro()
         {
@@ -88,7 +89,7 @@ namespace MultiCube
             Console.WindowHeight = 40;
             Console.WindowWidth = 142;
 
-            Console.WriteLine("Resize the window to a size you like (ALT + Return/Enter enables fullscreen mode if your system supports it!)");
+            Console.WriteLine("Resize the window to a size you like");
             Console.WriteLine("Press any key to continue...");
             do
             {
@@ -122,7 +123,7 @@ namespace MultiCube
                         for (int h = 0; h < y + vheight; h++)
                         {
                             Console.SetCursorPosition(x, h);
-                            Console.Write(BORDER_CHAR);
+                            Console.Write(V_BORDER_CHAR);
                         }
                         x -= vwidth;
 
@@ -135,7 +136,7 @@ namespace MultiCube
                 for (int w = 0; w < x; w++)
                 {
                     Console.SetCursorPosition(w, y);
-                    Console.Write(BORDER_CHAR);
+                    Console.Write(H_BORDER_CHAR);
                 }
                 y -= vheight;
 
