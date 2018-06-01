@@ -8,7 +8,7 @@ namespace MultiCube
     {
         static readonly RegistryKey rk = Registry.CurrentUser.CreateSubKey("SOFTWARE\\MultiCube");
         const float SPEED = 5f, DOUBLE_SPEED = 10f, HALF_SPEED = 2.5f; // User control speeds
-        const int AUTO_SPEED = 4; // Auto rotation speed - 1
+        const int AUTO_SPEED = 5; // Auto rotation speed - 1
 
         private static Random random = new Random();
 
