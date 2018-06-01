@@ -5,6 +5,9 @@ namespace MultiCube
     class VScreen
     {
         private readonly char[,] empty;
+        public const char H_BORDER_CHAR = '-';
+        public const char V_BORDER_CHAR = '|';
+
         public bool Changed { get; private set; } = false;
         /* Lines[y, x] because my thought process says "first look at the height (y), then the position on that line (x)" on a grid,
            so that design choice was made because it was easier for me to keep in mind while coding. */
@@ -15,7 +18,7 @@ namespace MultiCube
         public int XOffset { get; }
         public int YOffset { get; }
 
-        public VScreen(int height, int width, int xOffset = 0, int yOffset = 0)
+        public VScreen(int height, int width, int xOffset, int yOffset)
         {
             // We have to initialise both output memories with spaces. empty[,] is serving
             Lines = new char[height, width];
@@ -25,11 +28,16 @@ namespace MultiCube
                 for (int x = 0; x < WindowWidth; x++)
                     Lines[y, x] = PrevLines[y, x] = empty[y, x] = ' ';
 
-            if (width > Console.WindowWidth) throw new ArgumentOutOfRangeException($"width (current value: {width}) was greater than the console window's size.");
-            if (width < 1) throw new ArgumentOutOfRangeException($"width (current value: {width}) requires a positive value.");
+            if (width > Console.WindowWidth) throw new ArgumentOutOfRangeException("width was greater than the console window's width.");
+            if (width < 1) throw new ArgumentOutOfRangeException("width requires a positive value.");
 
-            if (height > Console.WindowHeight) throw new ArgumentOutOfRangeException($"width (current value: {width}) was greater than the console window's size.");
-            if (height < 1) throw new ArgumentOutOfRangeException($"width (current value: {width}) requires a positive value.");
+            if (height > Console.WindowHeight) throw new ArgumentOutOfRangeException("height was greater than the console window height.");
+            if (height < 1) throw new ArgumentOutOfRangeException("height requires a positive value.");
+
+            if (width + xOffset > Console.WindowWidth) throw new ArgumentOutOfRangeException("xOffset + width was greater than the console window width.");
+
+            if (height + yOffset > Console.WindowHeight) throw new ArgumentOutOfRangeException("xOffset + width was greater than the console window width.");
+
             WindowWidth = width;
             WindowHeight = height;
             XOffset = xOffset;

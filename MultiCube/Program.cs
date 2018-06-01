@@ -1,17 +1,46 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace MultiCube
 {
+    // Extension class containing functionality that VScreen wouldn't need for other programs
+    static class VScreenExtensions
+    {
+        static public void PrintBorders(this VScreen screen, ConsoleColor color)
+        {
+            ConsoleColor prevColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+
+            //Console.SetCursorPosition(x + XOffset, y + YOffset);
+
+            // Print vertical right-hand screen border
+            Console.CursorLeft = screen.XOffset + screen.WindowWidth;
+            for (int y = 0; y < screen.WindowHeight; y++)
+            {
+                Console.CursorTop = screen.YOffset + y;
+                Console.Write(VScreen.V_BORDER_CHAR);
+                Console.CursorLeft--;
+            }
+
+            // Print horizontal bottom screen border
+            Console.CursorTop = screen.YOffset + screen.WindowHeight;
+            for (int x = 0; x <= screen.WindowWidth; x++)
+            {
+                Console.CursorLeft = screen.XOffset + x;
+                Console.Write(VScreen.H_BORDER_CHAR);
+                Console.CursorLeft--;
+            }
+
+            Console.ForegroundColor = prevColor;
+        }
+    }
     class Program
     {
-        static readonly RegistryKey rk = Registry.CurrentUser.CreateSubKey("SOFTWARE\\MultiCube");
         const int MAX_SCREEN_COUNT = 10;
         const float ZOOM_FACTOR = 3.2f;
-        const char H_BORDER_CHAR = '-';
-        const char V_BORDER_CHAR = '|';
+        static readonly TimeSpan minTime = new TimeSpan(50000);
 
         static void Intro()
         {
@@ -23,7 +52,7 @@ namespace MultiCube
             Console.WriteLine();
             Console.Write("Press F to ");
             string respects = "pay respects";
-            string disable = "disable this message for your system globally.";
+            string disable = "disable this message for your user account.";
 
             #region Easter Egg
             for (int i = 0; i < respects.Length; i++)
@@ -31,6 +60,7 @@ namespace MultiCube
                 Console.Write(respects[i]);
                 Thread.Sleep(30);
             }
+            Thread.Sleep(300);
             for (int i = 0; i < respects.Length; i++)
             {
                 if (Console.CursorLeft != 0)
@@ -73,7 +103,7 @@ namespace MultiCube
                         Environment.Exit(0);
                         break;
                     case ConsoleKey.F:
-                        rk.SetValue("showTutorial", 0);
+                        RegistrySettings.ShowTutorial = false;
                         Console.WriteLine("[Registry] Tutorial disabled.");
                         break;
                     default:
@@ -84,11 +114,10 @@ namespace MultiCube
 
             Console.Clear();
         }
-        static void Init(out List<VScreen> screens, out int vheight, out int vwidth)
+        static void Init(out List<VScreen> screens)
         {
             Console.WindowHeight = 40;
             Console.WindowWidth = 142;
-
             Console.WriteLine("Resize the window to a size you like");
             Console.WriteLine("Press any key to continue...");
             do
@@ -102,57 +131,44 @@ namespace MultiCube
             screens = new List<VScreen>();
             Console.CursorVisible = false;
 
-            if (rk.GetValue("showTutorial", 0).Equals(1)) Intro();
+            if (RegistrySettings.ShowTutorial) Intro();
             // Dynamic virtual screen sizes
-            vheight = (int)(Console.WindowHeight / 2.5);
-            vwidth = (int)(Console.WindowWidth / 5.5);
+            int vheight = (int)(Console.WindowHeight / 2.5);
+            int vwidth = (int)(Console.WindowWidth / 5.5);
 
-            bool end = false;
             for (int y = 0; y < (Console.WindowHeight - vheight + 1); y += vheight + 1)
             {
                 int x = 0;
-                // VSCREEN_* + 1 since we want to leave space for the borders.
+                // height or width + 1 since we want to leave space for the borders.
                 for (; x < Console.WindowWidth - vwidth + 1; x += vwidth + 1)
                 {
                     if (screens.Count != MAX_SCREEN_COUNT)
                     {
-                        screens.Add(new VScreen(vheight, vwidth, x, y));
 
-                        // Print vertical right-hand screen border for each screen
-                        x += vwidth;
-                        for (int h = 0; h < y + vheight; h++)
-                        {
-                            Console.SetCursorPosition(x, h);
-                            Console.Write(V_BORDER_CHAR);
-                        }
-                        x -= vwidth;
-
+                        VScreen screen = new VScreen(vheight, vwidth, x, y);
+                        screens.Add(screen);
+                        screen.PrintBorders(Console.ForegroundColor);
                     }
                     else break;
                 }
-
-                // Print horizontal bottom screen row borders
-                y += vheight;
-                for (int w = 0; w < x; w++)
-                {
-                    Console.SetCursorPosition(w, y);
-                    Console.Write(H_BORDER_CHAR);
-                }
-                y -= vheight;
-
-                if (end) break;
             }
         }
         static void Main()
         {
+            Stopwatch watch = new Stopwatch();
             byte enableCombination = 0;
 
-            Init(out List<VScreen> screens, out int vheight, out int vwidth);
+            Init(out List<VScreen> screens);
+
             List<ScreenContainer> sc = new List<ScreenContainer>();
             foreach (VScreen screen in screens)
-                sc.Add(new ScreenContainer(screen, vheight, vwidth, ZOOM_FACTOR));
+                sc.Add(new ScreenContainer(screen, ZOOM_FACTOR));
+            screens.Clear();
 
             byte sel = 0;
+
+            sc[sel].Screen.PrintBorders(ConsoleColor.Green); // Marks the currently selected screen
+
             int fheight = Console.BufferHeight = Console.WindowHeight;
             int fwidth = Console.BufferWidth = Console.WindowWidth;
 
@@ -163,30 +179,38 @@ namespace MultiCube
             ConsoleKeyInfo keyPress = new ConsoleKeyInfo();
             while (!exit)
             {
+                watch.Restart();
                 // Updating the currently selected screen
-                screens[sel].Clear();
-                sc[sel].Cube.Update2DProjection(sc[sel].AngleX, sc[sel].AngleY, sc[sel].AngleZ, screens[sel]);
+                sc[sel].Screen.Clear();
+                sc[sel].Cube.Update2DProjection(sc[sel].Screen);
 
                 if (Console.KeyAvailable)
                 {
                     keyPress = Console.ReadKey(true);
-                    sc[sel].ProcessKeypress(ref keyPress, ref rotationFactor, ref exit, ref sel, ref enableCombination);
+                    sc[sel].ProcessKeypress(ref keyPress, ref rotationFactor, ref exit, sel, ref enableCombination, out byte newSel);
+                    if (newSel != sel)
+                    {
+                        sc[sel].Screen.PrintBorders(Console.ForegroundColor);
+                        sel = newSel;
+                        sc[sel].Screen.PrintBorders(ConsoleColor.Green);
+                    }
                 }
 
-                DateTime autoStart = DateTime.Now;
                 for (int i = 0; i < sc.Count; i++)
                 {
                     sc[i].Autorotate();
                     if (i != sel)
                     {
-                        screens[i].Clear();
-                        sc[i].Cube.Update2DProjection(sc[i].AngleX, sc[i].AngleY, sc[i].AngleZ, screens[i]);
+                        sc[i].Screen.Clear();
+                        sc[i].Cube.Update2DProjection(sc[i].Screen);
                     }
                 }
-                Thread.Sleep((DateTime.Now - autoStart).TotalMilliseconds < 1.1 ? 1 : 0); // We want a minimum of 1ms sleep after auto rotating the cubes.
+                watch.Stop();
 
-                screens.ForEach(screen => screen.Refresh());
-                Console.CursorVisible = false; // Workaround for cursor staying visible if you click into the window once
+                if (minTime > watch.Elapsed) Thread.Sleep(minTime - watch.Elapsed);
+                sc.ForEach(c => c.Screen.Refresh());
+
+                Console.CursorVisible = false; // Workaround for cursor being visible if you click into the window once
             }
         }
     }

@@ -6,7 +6,6 @@ namespace MultiCube
 {
     class ScreenContainer
     {
-        static readonly RegistryKey rk = Registry.CurrentUser.CreateSubKey("SOFTWARE\\MultiCube");
         const float SPEED = 5f, DOUBLE_SPEED = 10f, HALF_SPEED = 2.5f; // User control speeds
         const int AUTO_SPEED = 5; // Auto rotation speed - 1
 
@@ -17,52 +16,49 @@ namespace MultiCube
 
         // Flag for manual (true) or automatic (false) cube movement.
         public bool ManualControl { get; set; } = true;
-        // "Camera position" for the cubes
-        public float AngleX { get; set; } = 0f;
-        public float AngleY { get; set; } = 0f;
-        public float AngleZ { get; set; } = 0f;
 
-        public ScreenContainer(VScreen screen, int vheight, int vwidth, float ZOOM_FACTOR)
+        public ScreenContainer(VScreen screen, float ZOOM_FACTOR)
         {
             Screen = screen;
 
             Cube = new Cube(
-                    Math.Min(vheight * ZOOM_FACTOR, vwidth * ZOOM_FACTOR)
+                    Math.Min(Screen.WindowHeight * ZOOM_FACTOR, Screen.WindowWidth * ZOOM_FACTOR)
                     );
 
             // print the cube
-            Cube.Update2DProjection(0f, 0f, 0f, screen);
-            screen.Refresh();
+            Cube.Update2DProjection(Screen);
+            Screen.Refresh();
         }
 
-        public void ProcessKeypress(ref ConsoleKeyInfo keyPress, ref float rotationFactor, ref bool exit, ref byte sel, ref byte enableCombination)
+        public void ProcessKeypress(ref ConsoleKeyInfo keyPress, ref float rotationFactor, ref bool exit, byte sel, ref byte enableCombination, out byte newSel)
         {
+            newSel = sel;
             #region Keypresses
             switch (keyPress.Key)
             {
                 case ConsoleKey.W:
-                    if (ManualControl) AngleX += rotationFactor;
+                    if (ManualControl) Cube.AngleX += rotationFactor;
                     break;
                 case ConsoleKey.A:
-                    if (ManualControl) AngleY += rotationFactor;
+                    if (ManualControl) Cube.AngleY += rotationFactor;
                     break;
                 case ConsoleKey.S:
-                    if (ManualControl) AngleX -= rotationFactor;
+                    if (ManualControl) Cube.AngleX -= rotationFactor;
                     break;
                 case ConsoleKey.D:
-                    if (ManualControl) AngleY -= rotationFactor;
+                    if (ManualControl) Cube.AngleY -= rotationFactor;
                     break;
                 case ConsoleKey.J:
-                    if (ManualControl) AngleZ += rotationFactor;
+                    if (ManualControl) Cube.AngleZ += rotationFactor;
                     break;
                 case ConsoleKey.K:
-                    if (ManualControl) AngleZ -= rotationFactor;
+                    if (ManualControl) Cube.AngleZ -= rotationFactor;
                     break;
                 case ConsoleKey.R:
                     ManualControl = true;
-                    AngleX = 0f;
-                    AngleY = 0f;
-                    AngleZ = 0f;
+                    Cube.AngleX = 0f;
+                    Cube.AngleY = 0f;
+                    Cube.AngleZ = 0f;
                     break;
                 case ConsoleKey.M:
                     ManualControl = !ManualControl;
@@ -72,43 +68,43 @@ namespace MultiCube
                     break;
                 case ConsoleKey.D1:
                 case ConsoleKey.NumPad1:
-                    sel = 0;
+                    newSel = 0;
                     break;
                 case ConsoleKey.D2:
                 case ConsoleKey.NumPad2:
-                    sel = 1;
+                    newSel = 1;
                     break;
                 case ConsoleKey.D3:
                 case ConsoleKey.NumPad3:
-                    sel = 2;
+                    newSel = 2;
                     break;
                 case ConsoleKey.D4:
                 case ConsoleKey.NumPad4:
-                    sel = 3;
+                    newSel = 3;
                     break;
                 case ConsoleKey.D5:
                 case ConsoleKey.NumPad5:
-                    sel = 4;
+                    newSel = 4;
                     break;
                 case ConsoleKey.D6:
                 case ConsoleKey.NumPad6:
-                    sel = 5;
+                    newSel = 5;
                     break;
                 case ConsoleKey.D7:
                 case ConsoleKey.NumPad7:
-                    sel = 6;
+                    newSel = 6;
                     break;
                 case ConsoleKey.D8:
                 case ConsoleKey.NumPad8:
-                    sel = 7;
+                    newSel = 7;
                     break;
                 case ConsoleKey.D9:
                 case ConsoleKey.NumPad9:
-                    sel = 8;
+                    newSel = 8;
                     break;
                 case ConsoleKey.D0:
                 case ConsoleKey.NumPad0:
-                    sel = 9;
+                    newSel = 9;
                     break;
                 case ConsoleKey.UpArrow:
                     if (enableCombination == 0) enableCombination = 1;
@@ -125,7 +121,7 @@ namespace MultiCube
                 case ConsoleKey.RightArrow:
                     if (enableCombination == 3) enableCombination = 0;
 
-                    rk.SetValue("showTutorial", 1);
+                    RegistrySettings.ShowTutorial = true;
                     Console.SetCursorPosition(0, Console.WindowHeight - 1);
                     Console.Write("[Registry] Tutorial enabled!");
                     break;
@@ -157,13 +153,13 @@ namespace MultiCube
                 switch (random.Next(1, 4))
                 {
                     case 1:
-                        AngleX += random.Next(0, AUTO_SPEED);
+                        Cube.AngleX += random.Next(0, AUTO_SPEED);
                         break;
                     case 2:
-                        AngleY += random.Next(0, AUTO_SPEED);
+                        Cube.AngleY += random.Next(0, AUTO_SPEED);
                         break;
                     case 3:
-                        AngleZ += random.Next(0, AUTO_SPEED);
+                        Cube.AngleZ += random.Next(0, AUTO_SPEED);
                         break;
                 }
             }
