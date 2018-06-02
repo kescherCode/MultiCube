@@ -65,6 +65,7 @@
     <Compile Include="RegistrySettings.cs" />
     <Compile Include="ScreenContainer.cs" />
     <Compile Include="VScreen.cs" />
+    <Compile Include="VScreenExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
