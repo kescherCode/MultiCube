@@ -11,12 +11,13 @@ namespace MultiCube
         public bool Changed { get; private set; } = false;
         /* Lines[y, x] because my thought process says "first look at the height (y), then the position on that line (x)" on a grid,
            so that design choice was made because it was easier for me to keep in mind while coding. */
-        public char[,] Lines { get; private set; } // Not List<string> because a String's indexer is read-only.
+        public char[,] Lines { get; private set; }
         public char[,] PrevLines { get; private set; }
+
         public int WindowWidth { get; }
         public int WindowHeight { get; }
-        public int XOffset { get; }
-        public int YOffset { get; }
+        public int XOffset { get; private set; }
+        public int YOffset { get; private set; }
 
         public VScreen(int height, int width, int xOffset, int yOffset)
         {
@@ -42,6 +43,11 @@ namespace MultiCube
             WindowHeight = height;
             XOffset = xOffset;
             YOffset = yOffset;
+        }
+        public void MoveOffset(int x = 0, int y = 0)
+        {
+            XOffset += x;
+            YOffset += y;
         }
         public void Push(string s, int x, int y)
         {
