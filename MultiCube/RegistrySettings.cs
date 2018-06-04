@@ -8,7 +8,7 @@ namespace MultiCube
         static public bool ShowTutorial
         {
             get => rk.GetValue("showTutorial", "true").Equals("true");
-            set => rk.SetValue("showTutorial", value.ToString());
+            set => rk.SetValue("showTutorial", value.ToString().ToLower());
         }
     }
 }
