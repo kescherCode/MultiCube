@@ -17,6 +17,7 @@ namespace MultiCube
             }
         }
 
+        const char CUBE_CHAR = '°';
         const int LEDGE_LENGTH = 25; // Maximum cube ledge length of 25 units. Changing this value will lead to issues.
         private readonly float size, fov;
 
@@ -68,7 +69,7 @@ namespace MultiCube
                     int x = ((int)(q.X + screen.WindowWidth * 2.5) / 5);
                     int y = ((int)(q.Y + screen.WindowHeight * 2.5) / 5);
 
-                    screen.Push('°', x, y); // Pushes the character to the screen buffer
+                    screen.Push(CUBE_CHAR, x, y); // Pushes the character to the screen buffer
                 }
             }
         }
