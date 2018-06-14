@@ -18,7 +18,7 @@ namespace MultiCube
         }
 
         const char CUBE_CHAR = '°';
-        const int LEDGE_LENGTH = 25; // Maximum cube ledge length of 25 units. Changing this value will lead to issues.
+        const int LEDGE_LENGTH = 25;
         private readonly float size, fov;
 
         // All possible corners on a cube

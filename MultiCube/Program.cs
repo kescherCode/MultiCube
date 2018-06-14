@@ -113,7 +113,6 @@ namespace MultiCube
                 {
                     if (screens.Count != MAX_SCREEN_COUNT)
                     {
-
                         VScreen screen = new VScreen(vheight, vwidth, x, y);
                         screens.Add(screen);
                         screen.PrintBorders(Console.ForegroundColor);
