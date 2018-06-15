@@ -20,10 +20,9 @@ namespace MultiCube
         public ScreenContainer(VScreen screen, float ZOOM_FACTOR)
         {
             Screen = screen;
-
-            Cube = new Cube(
-                    Math.Min(Screen.WindowHeight * ZOOM_FACTOR, Screen.WindowWidth * ZOOM_FACTOR)
-                    );
+            float size = Math.Min(Screen.WindowHeight * ZOOM_FACTOR, Screen.WindowWidth * ZOOM_FACTOR);
+            int ledgeLength = (int) (size / (ZOOM_FACTOR));
+            Cube = new Cube(size, ledgeLength);
 
             // print the cube
             Cube.Update2DProjection(Screen);
