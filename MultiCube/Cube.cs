@@ -17,7 +17,6 @@ namespace MultiCube
             }
         }
 
-        const char CUBE_CHAR = '°';
         readonly int ledgeLength;
         private readonly float size, fov;
 
@@ -41,17 +40,38 @@ namespace MultiCube
             where (a - b).Length == 2 && a.X + a.Y + a.Z > b.X + b.Y + b.Z
             select new CornerData(a, b);
 
-
+        private float angleX = 0f, angleY = 0f, angleZ = 0f;
         // "Camera position" for the cubes
-        public float AngleX { get; set; } = 0f;
-        public float AngleY { get; set; } = 0f;
-        public float AngleZ { get; set; } = 0f;
+        public float AngleX
+        {
+            get => angleX;
+            set
+            {
+                angleX = value % 360f;
+            }
+        }
+        public float AngleY
+        {
+            get => angleY;
+            set
+            {
+                angleY = value % 360f;
+            }
+        }
+        public float AngleZ
+        {
+            get => angleZ;
+            set
+            {
+                angleZ = value % 360f;
+            }
+        }
 
-        public Cube(float size, int ledgeLength = 25, float fov = 3)
+        public Cube(float size, float fov = 3)
         {
             this.size = size;
             this.fov = fov;
-            this.ledgeLength = ledgeLength;
+            this.ledgeLength = (int)(size / Globals.ZOOM_FACTOR);
         }
         public void Update2DProjection(VScreen screen)
         {
@@ -70,7 +90,7 @@ namespace MultiCube
                     int x = ((int)(q.X + screen.WindowWidth * 2.5) / 5);
                     int y = ((int)(q.Y + screen.WindowHeight * 2.5) / 5);
 
-                    screen.Push(CUBE_CHAR, x, y); // Pushes the character to the screen buffer
+                    screen.Push(Globals.CUBE_CHAR, x, y); // Pushes the character to the screen buffer
                 }
             }
         }

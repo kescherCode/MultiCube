@@ -17,7 +17,7 @@ namespace MultiCube
             for (int y = 0; y < screen.WindowHeight; y++)
             {
                 Console.CursorTop = screen.YOffset + y;
-                Console.Write(VScreen.V_BORDER_CHAR);
+                Console.Write(Globals.V_BORDER_CHAR);
                 Console.CursorLeft--;
             }
 
@@ -26,7 +26,7 @@ namespace MultiCube
             for (int x = 0; x <= screen.WindowWidth; x++)
             {
                 Console.CursorLeft = screen.XOffset + x;
-                Console.Write(VScreen.H_BORDER_CHAR);
+                Console.Write(Globals.H_BORDER_CHAR);
                 Console.CursorLeft--;
             }
 

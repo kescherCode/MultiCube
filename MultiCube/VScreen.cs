@@ -5,8 +5,6 @@ namespace MultiCube
     class VScreen
     {
         private readonly char[,] empty;
-        public const char H_BORDER_CHAR = '-';
-        public const char V_BORDER_CHAR = '|';
 
         public bool Changed { get; private set; } = false;
         /* Lines[y, x] because my thought process says "first look at the height (y), then the position on that line (x)" on a grid,

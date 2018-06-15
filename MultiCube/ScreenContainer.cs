@@ -9,20 +9,17 @@ namespace MultiCube
         const float SPEED = 5f, DOUBLE_SPEED = 10f, HALF_SPEED = 2.5f; // User control speeds
         const int AUTO_SPEED = 5; // Auto rotation speed - 1
 
-        private static Random random = new Random();
-
         public VScreen Screen { get; }
         public Cube Cube { get; }
 
         // Flag for manual (true) or automatic (false) cube movement.
         public bool ManualControl { get; set; } = true;
 
-        public ScreenContainer(VScreen screen, float ZOOM_FACTOR)
+        public ScreenContainer(VScreen screen)
         {
             Screen = screen;
-            float size = Math.Min(Screen.WindowHeight * ZOOM_FACTOR, Screen.WindowWidth * ZOOM_FACTOR);
-            int ledgeLength = (int) (size / (ZOOM_FACTOR));
-            Cube = new Cube(size, ledgeLength);
+            float size = Math.Min(Screen.WindowHeight * Globals.ZOOM_FACTOR, Screen.WindowWidth * Globals.ZOOM_FACTOR);
+            Cube = new Cube(size);
 
             // print the cube
             Cube.Update2DProjection(Screen);
@@ -149,16 +146,16 @@ namespace MultiCube
         {
             if (!ManualControl)
             {
-                switch (random.Next(1, 4))
+                switch (Globals.random.Next(1, 4))
                 {
                     case 1:
-                        Cube.AngleX += random.Next(0, AUTO_SPEED);
+                        Cube.AngleX += Globals.random.Next(0, AUTO_SPEED);
                         break;
                     case 2:
-                        Cube.AngleY += random.Next(0, AUTO_SPEED);
+                        Cube.AngleY += Globals.random.Next(0, AUTO_SPEED);
                         break;
                     case 3:
-                        Cube.AngleZ += random.Next(0, AUTO_SPEED);
+                        Cube.AngleZ += Globals.random.Next(0, AUTO_SPEED);
                         break;
                 }
             }

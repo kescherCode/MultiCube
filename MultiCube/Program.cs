@@ -7,8 +7,6 @@ namespace MultiCube
 {
     class Program
     {
-        const int MAX_SCREEN_COUNT = 10;
-        const float ZOOM_FACTOR = 3.2f;
         static readonly TimeSpan minTime = new TimeSpan(50000);
 
         static void Intro()
@@ -111,7 +109,7 @@ namespace MultiCube
                 // height or width + 1 since we want to leave space for the borders.
                 for (; x < Console.WindowWidth - vwidth + 1; x += vwidth + 1)
                 {
-                    if (screens.Count != MAX_SCREEN_COUNT)
+                    if (screens.Count != Globals.MAX_SCREEN_COUNT)
                     {
                         VScreen screen = new VScreen(vheight, vwidth, x, y);
                         screens.Add(screen);
@@ -130,7 +128,7 @@ namespace MultiCube
 
             List<ScreenContainer> sc = new List<ScreenContainer>();
             foreach (VScreen screen in screens)
-                sc.Add(new ScreenContainer(screen, ZOOM_FACTOR));
+                sc.Add(new ScreenContainer(screen));
             screens.Clear();
 
             byte sel = 0;
