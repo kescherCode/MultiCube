@@ -95,7 +95,7 @@ namespace MultiCube
 
         public static bool operator ==(Point3D left, Point3D right) => left.Equals(right);
         public static bool operator !=(Point3D left, Point3D right) => !left.Equals(right);
-        public override bool Equals(Object obj)
+        public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
                 return false;

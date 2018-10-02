@@ -1,13 +1,14 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MultiCube
 {
     class ScreenContainer
     {
         const float SPEED = 5f, DOUBLE_SPEED = 10f, HALF_SPEED = 2.5f; // User control speeds
-        const int AUTO_SPEED = 5; // Auto rotation speed - 1
+        const int AUTO_SPEED = 5; // Maximum auto rotation speed will be (AUTO_SPEED - 1)
 
         public VScreen Screen { get; }
         public Cube Cube { get; }
@@ -21,7 +22,7 @@ namespace MultiCube
             float size = Math.Min(Screen.WindowHeight * Globals.ZOOM_FACTOR, Screen.WindowWidth * Globals.ZOOM_FACTOR);
             Cube = new Cube(size);
 
-            // print the cube
+            // print the initial cube
             Cube.Update2DProjection(Screen);
             Screen.Refresh();
         }
@@ -120,6 +121,10 @@ namespace MultiCube
                     RegistrySettings.ShowTutorial = true;
                     Console.SetCursorPosition(0, Console.WindowHeight - 1);
                     Console.Write("[Registry] Tutorial enabled!");
+                    break;
+                case ConsoleKey.OemPeriod:
+                    Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    Environment.Exit(0);
                     break;
                 default:
                     enableCombination = 0;

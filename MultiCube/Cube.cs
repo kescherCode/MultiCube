@@ -1,6 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MultiCube
 {
@@ -33,7 +33,7 @@ namespace MultiCube
                 new Point3D(1, 1, 1)
             };
 
-        // A LINQ query that puts all valid corner coordinates into an IEnumerable<CornerData> instance.
+        // A LINQ query that puts all valid corner coordinates into a collection of CornerData
         private readonly static IEnumerable<CornerData> lines =
             from a in corners
             from b in corners
@@ -45,40 +45,31 @@ namespace MultiCube
         public float AngleX
         {
             get => angleX;
-            set
-            {
-                angleX = value % 360f;
-            }
+            set => angleX = value % 360f;
         }
         public float AngleY
         {
             get => angleY;
-            set
-            {
-                angleY = value % 360f;
-            }
+            set => angleY = value % 360f;
         }
         public float AngleZ
         {
             get => angleZ;
-            set
-            {
-                angleZ = value % 360f;
-            }
+            set => angleZ = value % 360f;
         }
 
         public Cube(float size, float fov = 3)
         {
             this.size = size;
             this.fov = fov;
-            this.ledgeLength = (int)(size / Globals.ZOOM_FACTOR);
+            ledgeLength = (int)(size / Globals.ZOOM_FACTOR);
         }
         public void Update2DProjection(VScreen screen)
         {
-            foreach (CornerData line in lines)
+            Parallel.ForEach(lines, line =>
             {
                 Point3D diff = line.a - line.b;
-                for (int i = 0; i < ledgeLength; i++)
+                Parallel.For(0, ledgeLength, i =>
                 {
                     // Find a point between A and B by following formula p=a+z(b-a) 
                     Point3D p = line.a + ((float)i / ledgeLength - 1) * diff;
@@ -89,10 +80,10 @@ namespace MultiCube
                     // Setting the cursor to the proper positions
                     int x = ((int)(q.X + screen.WindowWidth * 2.5) / 5);
                     int y = ((int)(q.Y + screen.WindowHeight * 2.5) / 5);
-
-                    screen.Push(Globals.CUBE_CHAR, x, y); // Pushes the character to the screen buffer
-                }
-            }
+                    // Pushes the character to the screen buffer
+                    screen.Push(Globals.CUBE_CHAR, x, y);
+                });
+            });
         }
     }
 }
