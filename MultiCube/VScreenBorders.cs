@@ -1,17 +1,22 @@
 ﻿using System;
-using System.Threading;
+using static MultiCube.Globals;
 
 namespace MultiCube
 {
+    /// <summary>
+    /// Extension methods for VScreen.
+    /// </summary>
     static class VScreenBorders
     {
-        // It's okay for it to have its own idle variable, doesn't interfere with anything
-        static bool idle = true;
+        /// <summary>
+        /// Prints borders around the screen. Requires the screen to be one char away in all directions from other screens in order to avoid
+        /// </summary>
+        /// <param name="screen">VScreen to have its borders printed</param>
+        /// <param name="color">Optional ConsoleColor to print the borders in</param>
         static public void PrintBorders(this VScreen screen, ConsoleColor color = ConsoleColor.White)
         {
-            if (idle)
+            lock (consoleLock)
             {
-                idle = false;
                 ConsoleColor prevColor = Console.ForegroundColor;
                 Console.ForegroundColor = color;
 
@@ -19,28 +24,30 @@ namespace MultiCube
                 Console.CursorLeft = screen.XOffset + screen.WindowWidth;
                 for (int y = 0; y < screen.WindowHeight; y++)
                 {
-                    Console.CursorTop = screen.YOffset + y;
-                    Console.Write(Globals.V_BORDER_CHAR);
-                    // Move the cursor back after a write
-                    Console.CursorLeft--;
+                    try
+                    {
+                        Console.CursorTop = screen.YOffset + y;
+                        Console.Write(V_BORDER_CHAR);
+                        // Move the cursor left after writing
+                        Console.CursorLeft--;
+                    }
+                    catch (ArgumentOutOfRangeException) { /* ignore, "user error" with offset or VScreen size */ }
                 }
 
                 // Print horizontal bottom screen border
                 Console.CursorTop = screen.YOffset + screen.WindowHeight;
                 for (int x = 0; x <= screen.WindowWidth; x++)
                 {
-                    Console.CursorLeft = screen.XOffset + x;
-                    Console.Write(Globals.H_BORDER_CHAR);
+                    try
+                    {
+                        Console.CursorLeft = screen.XOffset + x;
+                        Console.Write(H_BORDER_CHAR);
+                    }
+                    catch (ArgumentOutOfRangeException) { /* ignore, "user error" with offset or VScreen size */ }
                 }
 
                 Console.ForegroundColor = prevColor;
             }
-            else
-            {
-                SpinWait.SpinUntil(() => idle);
-                PrintBorders(screen, color);
-            }
-            idle = true;
         }
     }
 }

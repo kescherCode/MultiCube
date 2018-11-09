@@ -1,15 +1,11 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
+using static MultiCube.Globals;
 
 namespace MultiCube
 {
     class ScreenContainer
     {
-        const float SPEED = 5f, DOUBLE_SPEED = 10f, HALF_SPEED = 2.5f; // User control speeds
-        const int AUTO_SPEED = 5; // Maximum auto rotation speed will be (AUTO_SPEED - 1)
-
         public VScreen Screen { get; }
         public Cube Cube { get; }
 
@@ -19,18 +15,33 @@ namespace MultiCube
         public ScreenContainer(VScreen screen)
         {
             Screen = screen;
-            float size = Math.Min(Screen.WindowHeight * Globals.ZOOM_FACTOR, Screen.WindowWidth * Globals.ZOOM_FACTOR);
+            double size = Math.Min(Screen.WindowHeight * ZOOM_FACTOR, Screen.WindowWidth * ZOOM_FACTOR);
             Cube = new Cube(size);
 
             // print the initial cube
-            Cube.Update2DProjection(Screen);
+            Cube.UpdateProjection(Screen);
             Screen.Refresh();
         }
 
-        public void ProcessKeypress(ref ConsoleKeyInfo keyPress, ref float rotationFactor, ref bool exit, byte sel, ref byte enableCombination, out byte newSel)
+        public void ProcessKeypress(ref ConsoleKeyInfo keyPress, ref double rotationFactor, ref bool exit, byte sel, ref byte enableCombination, out byte newSel)
         {
             newSel = sel;
             #region Keypresses
+            if (ManualControl)
+            {
+                // If shift is pressed, speed should be slowed down.
+                // If alt is pressed, speed should be sped up.
+                // If both or none are pressed, speed should be set to the default value.
+                bool altDown, shiftDown;
+                altDown = (keyPress.Modifiers & ConsoleModifiers.Alt) != 0;
+                shiftDown = (keyPress.Modifiers & ConsoleModifiers.Shift) != 0;
+                if (shiftDown && !altDown)
+                    rotationFactor = HALF_SPEED;
+                else if (altDown && !shiftDown)
+                    rotationFactor = DOUBLE_SPEED;
+                else rotationFactor = SPEED;
+            }
+
             switch (keyPress.Key)
             {
                 case ConsoleKey.W:
@@ -52,10 +63,11 @@ namespace MultiCube
                     if (ManualControl) Cube.AngleZ -= rotationFactor;
                     break;
                 case ConsoleKey.R:
+                    // Cube reset
                     ManualControl = true;
-                    Cube.AngleX = 0f;
-                    Cube.AngleY = 0f;
-                    Cube.AngleZ = 0f;
+                    Cube.AngleX = 0;
+                    Cube.AngleY = 0;
+                    Cube.AngleZ = 0;
                     break;
                 case ConsoleKey.M:
                     ManualControl = !ManualControl;
@@ -119,11 +131,15 @@ namespace MultiCube
                     if (enableCombination == 3) enableCombination = 0;
 
                     RegistrySettings.ShowTutorial = true;
-                    Console.SetCursorPosition(0, Console.WindowHeight - 1);
-                    Console.Write("[Registry] Tutorial enabled!");
+                    lock (consoleLock)
+                    {
+                        Console.SetCursorPosition(0, Console.WindowHeight - 1);
+                        Console.Write("[Registry] Tutorial enabled!");
+                    }
                     break;
                 case ConsoleKey.OemPeriod:
-                    Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    // Start a new process using the path the current .exe was started from and exit the current process.
+                    Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, $"{Console.WindowHeight} {Console.WindowWidth} true");
                     Environment.Exit(0);
                     break;
                 default:
@@ -131,38 +147,18 @@ namespace MultiCube
                     break;
                     #endregion
             }
-
-            if (ManualControl)
-            {
-                bool altDown, shiftDown;
-                altDown = (keyPress.Modifiers & ConsoleModifiers.Alt) != 0;
-                shiftDown = (keyPress.Modifiers & ConsoleModifiers.Shift) != 0;
-                if (shiftDown)
-                {
-                    if (altDown) rotationFactor = AUTO_SPEED;
-                    else rotationFactor = HALF_SPEED;
-                }
-                else if (altDown) rotationFactor = DOUBLE_SPEED;
-                else rotationFactor = AUTO_SPEED;
-            }
         }
 
+        /// <summary>
+        /// Provides one tick of automatic rotation to all cubes that are set to autorotation mode.
+        /// </summary>
         public void Autorotate()
         {
             if (!ManualControl)
             {
-                switch (Globals.random.Next(1, 4))
-                {
-                    case 1:
-                        Cube.AngleX += Globals.random.Next(0, AUTO_SPEED);
-                        break;
-                    case 2:
-                        Cube.AngleY += Globals.random.Next(0, AUTO_SPEED);
-                        break;
-                    case 3:
-                        Cube.AngleZ += Globals.random.Next(0, AUTO_SPEED);
-                        break;
-                }
+                Cube.AngleX += random.NextDouble();
+                Cube.AngleY += random.NextDouble();
+                Cube.AngleZ += random.NextDouble();
             }
         }
     }
