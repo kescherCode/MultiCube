@@ -6,16 +6,16 @@ namespace MultiCube
     /// <summary>
     /// Extension methods for VScreen.
     /// </summary>
-    static class VScreenBorders
+    internal static class VScreenBorders
     {
         /// <summary>
         /// Prints borders around the screen. Requires the screen to be one char away in all directions from other screens in order to avoid
         /// </summary>
         /// <param name="screen">VScreen to have its borders printed</param>
         /// <param name="color">Optional ConsoleColor to print the borders in</param>
-        static public void PrintBorders(this VScreen screen, ConsoleColor color = ConsoleColor.White)
+        public static void PrintBorders(this VScreen screen, ConsoleColor color = ConsoleColor.White)
         {
-            lock (consoleLock)
+            lock (ConsoleLock)
             {
                 ConsoleColor prevColor = Console.ForegroundColor;
                 Console.ForegroundColor = color;
@@ -27,11 +27,14 @@ namespace MultiCube
                     try
                     {
                         Console.CursorTop = screen.YOffset + y;
-                        Console.Write(V_BORDER_CHAR);
+                        Console.Write(VBorderChar);
                         // Move the cursor left after writing
                         Console.CursorLeft--;
                     }
-                    catch (ArgumentOutOfRangeException) { /* ignore, "user error" with offset or VScreen size */ }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        /* ignore, "user error" with offset or VScreen size */
+                    }
                 }
 
                 // Print horizontal bottom screen border
@@ -41,9 +44,12 @@ namespace MultiCube
                     try
                     {
                         Console.CursorLeft = screen.XOffset + x;
-                        Console.Write(H_BORDER_CHAR);
+                        Console.Write(HBorderChar);
                     }
-                    catch (ArgumentOutOfRangeException) { /* ignore, "user error" with offset or VScreen size */ }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        /* ignore, "user error" with offset or VScreen size */
+                    }
                 }
 
                 Console.ForegroundColor = prevColor;
