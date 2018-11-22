@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace MultiCube
 {
-    internal struct Scalar3D
+    struct Scalar3D
     {
         public double X;
         public double Y;
@@ -67,10 +66,9 @@ namespace MultiCube
 
         // Returns the sum of all coordinates squared.
         public double Length => Math.Sqrt(X * X + Y * Y + Z * Z);
-
         public static Scalar3D operator *(double scale, Scalar3D x)
         {
-            var p = new Scalar3D(x.X, x.Y, x.Z);
+            Scalar3D p = new Scalar3D(x.X, x.Y, x.Z);
             p.X *= scale;
             p.Y *= scale;
             p.Z *= scale;
@@ -79,7 +77,7 @@ namespace MultiCube
 
         public static Scalar3D operator -(Scalar3D left, Scalar3D right)
         {
-            var p = new Scalar3D(left.X, left.Y, left.Z);
+            Scalar3D p = new Scalar3D(left.X, left.Y, left.Z);
             p.X -= right.X;
             p.Y -= right.Y;
             p.Z -= right.Z;
@@ -88,7 +86,7 @@ namespace MultiCube
 
         public static Scalar3D operator +(Scalar3D left, Scalar3D right)
         {
-            var p = new Scalar3D(left.X, left.Y, left.Z);
+            Scalar3D p = new Scalar3D(left.X, left.Y, left.Z);
             p.X += right.X;
             p.Y += right.Y;
             p.Z += right.Z;
@@ -110,25 +108,12 @@ namespace MultiCube
             if (obj == null || GetType() != obj.GetType())
                 return false;
 
-            var point = (Scalar3D) obj;
-            return X.Equals(point.X) && Y.Equals(point.Y) && Z.Equals(point.Z);
+            Scalar3D point = (Scalar3D)obj;
+            return (X == point.X && Y == point.Y && Z == point.Z);
         }
-
-        public bool Equals(Scalar3D other)
-        {
-            return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
-        }
-
-        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = X.GetHashCode();
-                hashCode = (hashCode * 397) ^ Y.GetHashCode();
-                hashCode = (hashCode * 397) ^ Z.GetHashCode();
-                return hashCode;
-            }
+            return new { X, Y, Z }.GetHashCode();
         }
     }
 }

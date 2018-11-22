@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using static MultiCube.Globals;
 
 namespace MultiCube
 {
-    internal class ScreenContainer
+    class ScreenContainer
     {
+        public VScreen Screen { get; }
+        public Cube Cube { get; }
+
+        // Flag for manual (true) or automatic (false) cube movement.
+        public bool ManualControl { get; set; } = true;
+
         public ScreenContainer(VScreen screen)
         {
             Screen = screen;
-            double size = Math.Min(Screen.WindowHeight * ZoomFactor, Screen.WindowWidth * ZoomFactor);
+            double size = Math.Min(Screen.WindowHeight * ZOOM_FACTOR, Screen.WindowWidth * ZOOM_FACTOR);
             Cube = new Cube(size);
 
             // print the initial cube
@@ -18,29 +23,23 @@ namespace MultiCube
             Screen.Refresh();
         }
 
-        public VScreen Screen { get; }
-        public Cube Cube { get; }
-
-        // Flag for manual (true) or automatic (false) cube movement.
-        public bool ManualControl { get; set; } = true;
-
-        public void ProcessKeypress(ref ConsoleKeyInfo keyPress, ref double rotationFactor, ref bool exit, byte sel,
-            ref byte enableCombination, out byte newSel)
+        public void ProcessKeypress(ref ConsoleKeyInfo keyPress, ref double rotationFactor, ref bool exit, byte sel, ref byte enableCombination, out byte newSel)
         {
             newSel = sel;
-
+            #region Keypresses
             if (ManualControl)
             {
                 // If shift is pressed, speed should be slowed down.
                 // If alt is pressed, speed should be sped up.
                 // If both or none are pressed, speed should be set to the default value.
-                bool altDown = (keyPress.Modifiers & ConsoleModifiers.Alt) != 0;
-                bool shiftDown = (keyPress.Modifiers & ConsoleModifiers.Shift) != 0;
+                bool altDown, shiftDown;
+                altDown = (keyPress.Modifiers & ConsoleModifiers.Alt) != 0;
+                shiftDown = (keyPress.Modifiers & ConsoleModifiers.Shift) != 0;
                 if (shiftDown && !altDown)
-                    rotationFactor = HalfSpeed;
+                    rotationFactor = HALF_SPEED;
                 else if (altDown && !shiftDown)
-                    rotationFactor = DoubleSpeed;
-                else rotationFactor = Speed;
+                    rotationFactor = DOUBLE_SPEED;
+                else rotationFactor = SPEED;
             }
 
             switch (keyPress.Key)
@@ -117,46 +116,50 @@ namespace MultiCube
                     newSel = 9;
                     break;
                 case ConsoleKey.UpArrow:
-                    enableCombination = enableCombination == 0 ? (byte) 1 : (byte) 0;
+                    if (enableCombination == 0) enableCombination = 1;
+                    else enableCombination = 0;
                     break;
                 case ConsoleKey.DownArrow:
-                    enableCombination = enableCombination == 1 ? (byte) 2 : (byte) 0;
+                    if (enableCombination == 1) enableCombination = 2;
+                    else enableCombination = 0;
                     break;
                 case ConsoleKey.LeftArrow:
-                    enableCombination = enableCombination == 2 ? (byte) 3 : (byte) 0;
+                    if (enableCombination == 2) enableCombination = 3;
+                    else enableCombination = 0;
                     break;
                 case ConsoleKey.RightArrow:
                     if (enableCombination == 3) enableCombination = 0;
 
                     RegistrySettings.ShowTutorial = true;
-                    lock (ConsoleLock)
+                    lock (consoleLock)
                     {
                         Console.SetCursorPosition(0, Console.WindowHeight - 1);
                         Console.Write("[Registry] Tutorial enabled!");
                     }
-
                     break;
                 case ConsoleKey.OemPeriod:
                     // Start a new process using the path the current .exe was started from and exit the current process.
-                    Process.Start(Assembly.GetExecutingAssembly().Location,
-                        $"{Console.WindowHeight} {Console.WindowWidth} true");
+                    Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, $"{Console.WindowHeight} {Console.WindowWidth} true");
                     Environment.Exit(0);
                     break;
                 default:
                     enableCombination = 0;
                     break;
+                    #endregion
             }
         }
 
         /// <summary>
-        ///     Provides one tick of automatic rotation to all cubes that are set to autorotation mode.
+        /// Provides one tick of automatic rotation to all cubes that are set to autorotation mode.
         /// </summary>
         public void Autorotate()
         {
-            if (ManualControl) return;
-            Cube.AngleX += Globals.Random.NextDouble();
-            Cube.AngleY += Globals.Random.NextDouble();
-            Cube.AngleZ += Globals.Random.NextDouble();
+            if (!ManualControl)
+            {
+                Cube.AngleX += random.NextDouble();
+                Cube.AngleY += random.NextDouble();
+                Cube.AngleZ += random.NextDouble();
+            }
         }
     }
 }
