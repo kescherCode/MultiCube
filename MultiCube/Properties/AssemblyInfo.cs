@@ -7,11 +7,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MultiCube")]
-[assembly: AssemblyDescription("A demo of projecting cubes into low-res screens using characters")]
+[assembly: AssemblyDescription("A demo of projecting cubes onto low-res screens using characters")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MultiCube")]
-[assembly: AssemblyCopyright("Jeremy Kescher")]
+[assembly: AssemblyCopyright("Jeremy Kescher (filthycoding)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

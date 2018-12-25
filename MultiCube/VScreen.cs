@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static MultiCube.Globals;
@@ -6,39 +7,14 @@ using static MultiCube.Globals;
 namespace MultiCube
 {
     /// <summary>
-    /// A class used for creating virtually seperated screens in a console.
+    ///     A class used for creating virtually seperated screens in a console.
     /// </summary>
-    class VScreen
+    internal class VScreen
     {
-        // Determines if there are any changes to the output at all (in order to save execution time in Refresh())
-        public bool Changed { get; private set; } = false;
-        // Determines if a method has to wait for another method in an instance of VScreen to complete in order to avoid issues with race conditions
-        public bool Idle { get; private set; } = false;
-
-        // The two screen buffers, inspired by how graphics cards handle display output.
-        public char[,] Lines { get; private set; }
-        public char[,] PrevLines { get; private set; }
-
-        public int WindowWidth { get; }
-        public int WindowHeight { get; }
-        // Offset the screen should have on the console output.
-        public int XOffset { get; private set; }
-        public int YOffset { get; private set; }
+        private readonly char[,] _empty;
 
         /// <summary>
-        /// Accesses a char inside the screen.
-        /// </summary>
-        /// <param name="x">x-coordinate of the char</param>
-        /// <param name="y">y-coordinate of the char</param>
-        /// <returns>The char assigned to the coordinate</returns>
-        public char this[int x, int y]
-        {
-            get => Lines[x, y];
-            set => Push(value, x, y);
-        }
-
-        /// <summary>
-        /// Initializes a new VScreen instance.
+        ///     Initializes a new VScreen instance.
         /// </summary>
         /// <param name="width">Width of the virtual screen</param>
         /// <param name="height">Height of the virtual screen</param>
@@ -46,204 +22,140 @@ namespace MultiCube
         /// <param name="yOffset">Vertical offset of the top-left corner of the VScreen.</param>
         public VScreen(int width, int height, int xOffset, int yOffset)
         {
-            // We have to initialise both output memories with spaces. empty[,] is serving
-            Lines = new char[width, height];
-            PrevLines = new char[width, height];
-            Parallel.For(0, width, x =>
-            {
-                Parallel.For(0, height, y =>
-                {
-                    Lines[x, y] = PrevLines[x, y] = ' ';
-                });
-            });
+            Grid = new char[width, height];
+            _empty = new char[width, height];
+            Parallel.For(0, width,
+                x => { Parallel.For(0, height, y => { Grid[x, y] = _empty[x, y] = ' '; }); });
 
-            if (width > Console.WindowWidth) throw new ArgumentOutOfRangeException("width was greater than the console window's width.");
-            if (width < 1) throw new ArgumentOutOfRangeException("width requires a positive value.");
+            if (width > Console.WindowWidth)
+                throw new ArgumentOutOfRangeException(nameof(width),
+                    "width was greater than the console window's width.");
+            if (width < 1) throw new ArgumentOutOfRangeException(nameof(width), "width requires a positive value.");
 
-            if (height > Console.WindowHeight) throw new ArgumentOutOfRangeException("height was greater than the console window height.");
-            if (height < 1) throw new ArgumentOutOfRangeException("height requires a positive value.");
+            if (height > Console.WindowHeight)
+                throw new ArgumentOutOfRangeException(nameof(height),
+                    "height was greater than the console window height.");
+            if (height < 1) throw new ArgumentOutOfRangeException(nameof(height), "height requires a positive value.");
 
-            if (width + xOffset > Console.WindowWidth) throw new ArgumentOutOfRangeException("xOffset + width was greater than the console window width.");
+            if (width + xOffset > Console.WindowWidth)
+                throw new ArgumentOutOfRangeException(nameof(xOffset),
+                    "xOffset + width was greater than the console window width.");
 
-            if (height + yOffset > Console.WindowHeight) throw new ArgumentOutOfRangeException("xOffset + width was greater than the console window width.");
+            if (height + yOffset > Console.WindowHeight)
+                throw new ArgumentOutOfRangeException(nameof(yOffset),
+                    "yOffset + width was greater than the console window width.");
 
             WindowWidth = width;
             WindowHeight = height;
             XOffset = xOffset;
             YOffset = yOffset;
-            Idle = true;
         }
+
+        // Determines if there are any changes to the output at all (in order to save execution time in Output())
+        private bool Changed { get; set; }
+
+        // Content of the screen
+        private char[,] Grid { get; set; }
+
+        public int WindowWidth { get; }
+        public int WindowHeight { get; }
+
+        // Offset the screen should have on the console output.
+        public int XOffset { get; private set; }
+        public int YOffset { get; private set; }
+
         /// <summary>
-        /// Moves the screen offset. Optionally clears screen at old position and/or outputs at new position.
+        ///     Accesses a char inside the screen.
         /// </summary>
-        /// <param name="x">Defines by how many characters the screen is moved horizontally</param>
-        /// <param name="y">Defines by how many characters the screen is moved vertically</param>
-        /// <param name="clearBeforehand">Defines if the screen should clean up the area it used before moving.</param>
-        /// <param name="outputAfterMove">Defines if the screen should output its contents after being moved.</param>
-        public void MoveOffset(int x = 0, int y = 0, bool clearBeforehand = false, bool outputAfterMove = false)
+        /// <param name="x">x-coordinate of the char</param>
+        /// <param name="y">y-coordinate of the char</param>
+        /// <returns>The char assigned to the coordinate</returns>
+        public char this[int x, int y]
         {
-            if (Idle)
-            {
-                Idle = false;
-                char[,] lines = new char[WindowWidth, WindowHeight];
-                Parallel.For(0, WindowWidth, x_ =>
-                {
-                    Parallel.For(0, WindowHeight, y_ =>
-                    {
-                        lines[x_, y_] = Lines[x_, y_];
-                    });
-                });
-                if (clearBeforehand) { Clear(); Refresh(); }
-                XOffset += x;
-                YOffset += y;
-                if (outputAfterMove)
-                {
-                    Parallel.Invoke(
-                        () => Changed = true,
-                        () =>
-                        Parallel.For(0, WindowWidth, x_ =>
-                        {
-                            Parallel.For(0, WindowHeight, y_ =>
-                            {
-                                PrevLines[x_, y_] = ' ';
-                            });
-                        }),
-                        () => Lines = lines
-                    );
-                    Refresh();
-                }
-            }
-            else
-            {
-                SpinWait.SpinUntil(() => Idle);
-                MoveOffset(x, y, clearBeforehand, outputAfterMove);
-            }
-            Idle = true;
+            get => Grid[x, y];
+            set => Push(value, x, y);
         }
 
         /// <summary>
-        /// Pushes a char to the screen buffer.
+        ///     Moves the screen offset by a certain amount. Optionally clears screen at old position and/or outputs at new
+        ///     position.
+        /// </summary>
+        /// <param name="xMove">Defines by how many characters the screen is moved horizontally</param>
+        /// <param name="yMove">Defines by how many characters the screen is moved vertically</param>
+        /// <param name="clearBeforehand">Defines if the screen should clean up the area it used before moving.</param>
+        /// <param name="outputAfterMove">Defines if the screen should output its contents after being moved.</param>
+        public void MoveOffset(int xMove = 0, int yMove = 0, bool clearBeforehand = false, bool outputAfterMove = false)
+        {
+            var lines = new char[WindowWidth, WindowHeight];
+
+            for (int x = 0; x < WindowWidth; x++)
+            for (int y = 0; y < WindowHeight; y++)
+                lines[x, y] = Grid[x, y];
+
+            if (clearBeforehand)
+            {
+                Clear();
+                Output();
+            }
+
+            XOffset += xMove;
+            YOffset += yMove;
+
+            if (!outputAfterMove) return;
+            Changed = true;
+            Grid = lines;
+            Output();
+        }
+
+        /// <summary>
+        ///     Pushes a char to the screen buffer.
         /// </summary>
         /// <param name="symbol">char to be pushed to the screen</param>
         /// <param name="x">x-Coordinate of the char</param>
         /// <param name="y">y-Coordinate of the char</param>
         public void Push(char symbol, int x, int y)
         {
-            if (Idle)
+            if (x <= WindowWidth - 1 && y <= WindowHeight - 1)
             {
-                Idle = false;
+                if (Grid[x, y] == symbol) return;
                 Changed = true;
-                if (x <= WindowWidth - 1 && y <= WindowHeight - 1)
-                {
-                    Lines[x, y] = symbol;
-                }
-                else throw new ArgumentException($"You picked the wrong x/y coordinates.\nc: {symbol} x: {x} y: {y}\nMaximum value of x: {WindowWidth - 1}\nMaximum value of y: {WindowHeight - 1}");
+                Grid[x, y] = symbol;
             }
             else
-            {
-                SpinWait.SpinUntil(() => Idle);
-                Push(symbol, x, y);
-            }
-            Idle = true;
+                throw new ArgumentException(
+                    $"You picked the wrong x/y coordinates.\nc: {symbol} x: {x} y: {y}\nMaximum value of x: {WindowWidth - 1}\nMaximum value of y: {WindowHeight - 1}");
         }
+
         /// <summary>
-        /// Outputs all characters that have changed on the buffer since the last output.
-        /// Using this method in an unsynchronized way will cause it to slow down.
+        ///     Outputs everything on the buffer if anything has changed.
+        ///     Faster than now removed FullOutput() or Refresh() methods.
         /// </summary>
-        public void Refresh()
+        public void Output()
         {
-            if (Idle)
+            if (!Changed) return;
+
+            for (int y = 0; y < WindowHeight; y++)
             {
-                Idle = false;
-                if (Changed)
+                var line = new StringBuilder();
+                for (int x = 0; x < WindowWidth; x++) line.Append(Grid[x, y]);
+
+                lock (ConsoleLock)
                 {
-                    Parallel.Invoke(
-                        () =>
-                        {
-                            for (int x = 0; x < WindowWidth; x++)
-                                for (int y = 0; y < WindowHeight; y++)
-                                    if (Lines[x, y] != PrevLines[x, y])
-                                    {
-                                        Parallel.Invoke(() =>
-                                        {
-                                            lock (consoleLock)
-                                            {
-                                                Console.SetCursorPosition(x + XOffset, y + YOffset);
-                                                Console.Write(Lines[x, y]);
-                                            }
-                                        },
-                                        () => PrevLines[x, y] = Lines[x, y]);
-                                    }
-                        },
-                        () => Changed = false
-                    );
+                    Console.SetCursorPosition(XOffset, y + YOffset);
+                    Console.Write(line.ToString());
                 }
             }
-            else
-            {
-                SpinWait.SpinUntil(() => Idle);
-                Refresh();
-            }
-            Idle = true;
+
+            Changed = false;
         }
+
         /// <summary>
-        /// Outputs every single character on the screen buffer.
-        /// If you need fast output, use Refresh() instead.
-        /// </summary>
-        public void FullOutput()
-        {
-            if (Idle)
-            {
-                Idle = false;
-                for (int x = 0; x < WindowWidth; x++)
-                    for (int y = 0; y < WindowHeight; y++)
-                    {
-                        Parallel.Invoke(() =>
-                        {
-                            lock (consoleLock)
-                            {
-                                Console.SetCursorPosition(x + XOffset, y + YOffset);
-                                Console.Write(Lines[x, y]);
-                            }
-                        },
-                        () => PrevLines[x, y] = Lines[x, y]);
-                    }
-                Changed = false;
-            }
-            else
-            {
-                SpinWait.SpinUntil(() => Idle);
-                FullOutput();
-            }
-            Idle = true;
-        }
-        /// <summary>
-        /// Clears the output buffer.
+        ///     Clears the output buffer.
         /// </summary>
         public void Clear()
         {
-            if (Idle)
-            {
-                Idle = false;
-                Parallel.Invoke(
-                () => Changed = true,
-                () =>
-                {
-                    Parallel.For(0, WindowWidth, x =>
-                    {
-                        Parallel.For(0, WindowHeight, y =>
-                        {
-                            Lines[x, y] = ' ';
-                        });
-                    });
-                });
-            }
-            else
-            {
-                SpinWait.SpinUntil(() => Idle);
-                Clear();
-            }
-            Idle = true;
+            Grid = (char[,]) _empty.Clone();
+            Changed = true;
         }
     }
 }

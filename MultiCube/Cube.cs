@@ -1,99 +1,125 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static MultiCube.Globals;
 
 namespace MultiCube
 {
-    // A class for storing a cube and sending a two-dimensional projection to a VScreen instance.
-    class Cube
+    /// <summary>
+    ///     A class that stores a cube and allows 2D projection into a VScreen class.
+    /// </summary>
+    internal class Cube
     {
-        // Stores a vector
-        public struct CornerData
-        {
-            public Scalar3D a;
-            public Scalar3D b;
-            public CornerData(Scalar3D a, Scalar3D b)
-            {
-                this.a = a;
-                this.b = b;
-            }
-        }
-
         // These constants "magnify" the view field and divide the total of coord, screen width and viewFactor.
-        const double viewFactor = 2.5f, pointDivisor = 5;
-
-        readonly int ledgeLength;
-        readonly double size, fov;
+        private const double ViewFactor = 2.5f, PointDivisor = 5;
 
         // All possible corners on a cube
-        readonly static List<Scalar3D> corners = new List<Scalar3D>
-            {
-                new Scalar3D(-1, -1, -1),
-                new Scalar3D(1, -1, -1),
-                new Scalar3D(1, -1, 1),
-                new Scalar3D(-1, -1, 1),
-                new Scalar3D(-1, 1, 1),
-                new Scalar3D(-1, 1, -1),
-                new Scalar3D(1, 1, -1),
-                new Scalar3D(1, 1, 1)
-            };
+        private static readonly List<Scalar3D> Corners = new List<Scalar3D>
+        {
+            new Scalar3D(-1, -1, -1),
+            new Scalar3D(1, -1, -1),
+            new Scalar3D(1, -1, 1),
+            new Scalar3D(-1, -1, 1),
+            new Scalar3D(-1, 1, 1),
+            new Scalar3D(-1, 1, -1),
+            new Scalar3D(1, 1, -1),
+            new Scalar3D(1, 1, 1)
+        };
 
-        // A LINQ query that puts all valid corner coordinates into a collection of CornerData
-        readonly static IEnumerable<CornerData> lines = (from a in corners
-                                                        from b in corners
-                                                        where (a - b).Length == 2 && a.X + a.Y + a.Z > b.X + b.Y + b.Z
-                                                        select new CornerData(a, b)).ToList();
+        // A LINQ query that puts all valid corner coordinates into a collection of LineData
+        private static readonly IEnumerable<LineData> Lines = (
+            from a in Corners
+            from b in Corners
+            where Math.Abs((a - b).Length - 2) < double.Epsilon && a.X + a.Y + a.Z > b.X + b.Y + b.Z
+            select new LineData(a, b)
+        ).ToList();
 
-        private double angleX = 0f, angleY = 0f, angleZ = 0f;
-        // "Camera position" for the cubes
-        public double AngleX
+        // _ledgeStep is _ledgeLength
+        private readonly int _ledgeStep;
+        private readonly double _size, _fov, _ledgeLength;
+
+        private double _angleX, _angleY, _angleZ;
+
+        /// <summary>
+        ///     Initializes a new Cube instanze.
+        /// </summary>
+        /// <param name="size">Cube size</param>
+        /// <param name="fov">Field of view around the cube</param>
+        public Cube(double size, double fov = 3.2)
         {
-            get => angleX;
-            set => angleX = value % 360f;
-        }
-        public double AngleY
-        {
-            get => angleY;
-            set => angleY = value % 360f;
-        }
-        public double AngleZ
-        {
-            get => angleZ;
-            set => angleZ = value % 360f;
+            _size = size * fov;
+            _fov = fov;
+            _ledgeLength = size;
+            _ledgeStep = (int) _ledgeLength;
         }
 
         /// <summary>
-        /// Initializes a new Cube instanze.
+        ///     Rotation of the X axis
         /// </summary>
-        /// <param name="size">Cube size</param>
-        /// <param name="fov"></param>
-        public Cube(double size, double fov = 3)
+        public double AngleX
         {
-            this.size = size;
-            this.fov = fov;
-            ledgeLength = (int)(size / ZOOM_FACTOR);
+            get => _angleX;
+            set => _angleX = value % 360f;
         }
-        public void UpdateProjection(VScreen screen)
+
+        /// <summary>
+        ///     Rotation of the Y axis
+        /// </summary>
+        public double AngleY
         {
-            Parallel.ForEach(lines, line =>
+            get => _angleY;
+            set => _angleY = value % 360f;
+        }
+
+        /// <summary>
+        ///     Rotation of the Z axis
+        /// </summary>
+        public double AngleZ
+        {
+            get => _angleZ;
+            set => _angleZ = value % 360f;
+        }
+
+        /// <summary>
+        ///     Prints a 2d representation of the cube with the current rotation into a VScreen instance.
+        /// </summary>
+        /// <param name="screen">VScreen instance to print to</param>
+        public void ProjectToVScreen(VScreen screen)
+        {
+            Parallel.ForEach(Lines, line =>
             {
-                Scalar3D diff = line.a - line.b;
-                Parallel.For(0, ledgeLength, i =>
+                Scalar3D diff = line.A - line.B;
+                Parallel.For(0, _ledgeStep, i =>
                 {
-                    // Find a point between A and B
-                    Scalar3D p = line.a + ((double)i / ledgeLength - 1) * diff;
-                    // Rotates the point
-                    Scalar3D r = p.RotateX(AngleX).RotateY(AngleY).RotateZ(AngleZ);
+                    // Find a point on the line between A and B.
+                    Scalar3D p = line.A + (i / _ledgeLength - 1) * diff;
+                    // Moves the point to where it is if the cube is rotated
+                    p.Rotate(_angleX, _angleY, _angleZ);
                     // Projects the point into 2d space. The parameters act as a kind of camera setting.
-                    Scalar3D q = r.Project(size, fov);
-                    // Choosing the screen coordinates to print at
-                    int x = (int)((q.X + screen.WindowWidth * viewFactor) / pointDivisor);
-                    int y = (int)((q.Y + screen.WindowHeight * viewFactor) / pointDivisor);
-                    // Pushes the character to the screen buffer
-                    screen.Push(CUBE_CHAR, x, y);
+                    Scalar3D q = p.Project(_size, _fov);
+                    // Choosing the correct screen coordinates to print at
+                    int x = (int) ((q.X + screen.WindowWidth * ViewFactor) / PointDivisor);
+                    int y = (int) ((q.Y + screen.WindowHeight * ViewFactor) / PointDivisor);
+                    // Pushes the character to the screen
+                    screen.Push(CubeChar, x, y);
                 });
             });
+        }
+
+        /// <summary>
+        ///     Contains two 3D points that represent a starting point and an ending point of a line.
+        /// </summary>
+        private struct LineData
+        {
+            public readonly Scalar3D A;
+            public readonly Scalar3D B;
+
+            public LineData(Scalar3D a, Scalar3D b)
+            {
+                A = a;
+                B = b;
+            }
         }
     }
 }

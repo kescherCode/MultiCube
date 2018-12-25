@@ -2,25 +2,24 @@
 
 namespace MultiCube
 {
-    static class Globals
+    /// <summary>
+    /// Stores "global" variables.
+    /// </summary>
+    internal struct Globals
     {
         // Object used for locking and synchronizing access to console.
-        public static readonly object consoleLock = new object();
+        public static readonly object ConsoleLock = new object();
 
-        public const int SCREEN_COUNT = 10;
-
-        public const double ZOOM_FACTOR = 3.2f;
-
-        // Screen border chars.
-        public const char H_BORDER_CHAR = '-';
-        public const char V_BORDER_CHAR = '|';
+        // The maximum amount of screens that should exist.
+        public const int ScreenCount = 10;
 
         // Char used for a cube's lines.
-        public const char CUBE_CHAR = 'o';
+        public const char CubeChar = 'o';
 
-        public const double SPEED = 6d, DOUBLE_SPEED = 12d, HALF_SPEED = 3d; // User control speeds
+        // Different rotation factors
+        public const double NormalFactor = 6d, DoubleFactor = NormalFactor * 2d, HalfFactor = NormalFactor / 2d;
 
         // We only need one PRNG.
-        public static Random random = new Random();
+        public static readonly Random Random = new Random(10000);
     }
 }

@@ -1,35 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Runtime;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static MultiCube.Globals;
 
 namespace MultiCube
 {
-    struct Program
+    internal struct Program
     {
-        // Minimum number of ticks the execution loop should run
-        static readonly TimeSpan minTime = new TimeSpan(320000);
-        // Fault tolerance for above
-        static readonly TimeSpan tolTime = new TimeSpan(330000);
+        private const int ProcessTime = 16;
+
+        private const string Usage = "Usage: MultiCube.exe (<height> <width>) <skipResize>\n" +
+                                     "<height>\tconsole window height in characters\ta positive integer\n" +
+                                     "<width>\tconsole window width in characters\ta positive integer\n" +
+                                     "<skipResize>\tskip the resizing prompt\t(\"true\"/\"false\")\n" +
+                                     "All parameters are optional, though if you provide height or width," +
+                                     "you must provide both values.";
+
         /// <summary>
-        /// Gives an intro to the user about using the program.
+        ///     Gives an intro to the user about using the program.
         /// </summary>
-        static void Intro()
+        private static void Intro()
         {
-            lock (consoleLock)
+            lock (ConsoleLock)
             {
                 Console.Write("Press F to ");
-                string respects = "pay respects";
-                string disable = "disable this message for your user account.";
+                const string respects = "pay respects";
+                const string disable = "disable this message for your user account.";
 
                 #region Easter Egg... kinda
-                for (int i = 0; i < respects.Length; i++)
+
+                foreach (char c in respects)
                 {
-                    Console.Write(respects[i]);
+                    Console.Write(c);
                     Thread.Sleep(30);
                 }
+
                 Thread.Sleep(300);
                 for (int i = 0; i < respects.Length; i++)
                 {
@@ -43,94 +53,99 @@ namespace MultiCube
                         Console.CursorLeft = Console.WindowHeight - 1;
                         Console.Write(" \b");
                     }
+
                     Thread.Sleep(30);
                 }
-                for (int i = 0; i < disable.Length; i++)
+
+                foreach (char c in disable)
                 {
-                    Console.Write(disable[i]);
+                    Console.Write(c);
                     Thread.Sleep(10);
                 }
+
                 Console.WriteLine();
+
                 #endregion
 
-                Console.WriteLine("After this screen, press up-down-left-right using your arrow keys to reenable this message.");
+                Console.WriteLine(
+                    "After this screen, press up-down-left-right using your arrow keys to reenable this message.");
                 Console.WriteLine();
                 Console.WriteLine("Switch between the 10 screens using the number keys on your numpad or top row.");
                 Console.WriteLine("Use W, A, S, D, J and K to rotate the cube in the selected screen manually.");
                 Console.WriteLine("Press ALT at the same time to speed up the manual rotation, SHIFT to slow it down.");
-                Console.WriteLine("Press M to toggle auto-rotation mode for a cube. Manual control will be disabled for that screen, but you can press M again to regain control.");
-                Console.WriteLine("Press R to reset the currently selected cube. This will also disable auto-rotation mode for it.");
+                Console.WriteLine(
+                    "Press M to toggle auto-rotation mode for a cube. Manual control will be disabled for that screen, but you can press M again to regain control.");
+                Console.WriteLine(
+                    "Press R to reset the currently selected cube. This will also disable auto-rotation mode for it.");
                 Console.WriteLine("Press ESC at any time to exit this program (in fact, you can do that right now!)");
-                Console.WriteLine("Press the . (period, dot) key to open a new instance of the program and end the current one (basically a restart, but not technically)");
+                Console.WriteLine(
+                    "Press the . (period, dot) key to open a new instance of the program and end the current one (basically a restart, but not technically)");
                 Console.WriteLine();
                 Console.WriteLine("Press any other key to just continue.");
 
                 bool exit = false;
                 while (!exit)
-                {
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (Console.ReadKey(true).Key)
                     {
                         case ConsoleKey.Escape:
                             Environment.Exit(0);
                             break;
                         case ConsoleKey.F:
-                            RegistrySettings.ShowTutorial = false;
+                            RegistrySettings.ShowIntro = false;
                             Console.WriteLine("[Registry] Tutorial disabled.");
                             break;
                         default:
                             exit = true;
                             break;
                     }
-                }
 
                 Console.Clear();
             }
         }
 
         /// <summary>
-        /// Do some initializing work (mainly environment prep).
+        ///     Do some initializing work (mainly environment prep).
         /// </summary>
         /// <param name="screens">List containing the VScreen instances</param>
         /// <param name="height"></param>
         /// <param name="width"></param>
         /// <param name="skipResize"></param>
-        static void Init(out List<VScreen> screens, int height, int width, bool skipResize)
+        private static void Init(out List<VScreen> screens, int height, int width, bool skipResize)
         {
+            Console.Title = "MultiCube";
             // If height and width are not too small or too large, set them from input parameters.
             if (height <= Console.LargestWindowHeight &&
                 width <= Console.LargestWindowWidth &&
-                height > 1 && width > 1)
-            {
-                Console.WindowHeight = height;
-                Console.WindowWidth = width;
-            }
+                height > 1 && width > 1) { }
             // Otherwise, set default values and disable resize skipping..
             else
             {
-                height = width = (int)(Console.LargestWindowHeight / 1.3);
+                height = width = (int) (Console.LargestWindowHeight / 1.3);
                 skipResize = false;
             }
 
+            Console.BufferHeight = Console.WindowHeight = height;
+            Console.BufferWidth = Console.WindowWidth = width;
+
             if (!skipResize)
-            {
-                lock (consoleLock)
+                lock (ConsoleLock)
                 {
                     Console.WriteLine("Resize the window to a size you like and press any key.");
                     Console.ReadKey(true);
                 }
-            }
 
-            // If launched from command line, we don't want to have any garbage from that left on the screen
+            // Considering the possibility of launching from command line, we don't want to have any residual output from it left on the screen.
             Console.Clear();
 
             screens = new List<VScreen>();
 
-            if (RegistrySettings.ShowTutorial) Intro();
-            lock (consoleLock)
+            if (RegistrySettings.ShowIntro) Intro();
+            lock (ConsoleLock)
             {
-                // Virtual screen sizes
-                int vheight = (int)(Console.WindowHeight / 2.5);
-                int vwidth = (int)(Console.WindowWidth / 5.5);
+                // Virtual screen sizes. They were found by trial and error.
+                int vheight = (int) (Console.WindowHeight / 2.5);
+                int vwidth = (int) (Console.WindowWidth / 5.5);
                 // v?Border = size with space we are leaving for the borders
                 int vhBorder = vheight + 1;
                 int vwBorder = vwidth + 1;
@@ -140,35 +155,42 @@ namespace MultiCube
                 {
                     int xOffset = 0;
                     for (; xOffset < Console.WindowWidth - vwBorder; xOffset += vwBorder)
-                    {
-                        if (screens.Count != SCREEN_COUNT)
+                        if (screens.Count != ScreenCount)
                         {
-                            VScreen screen = new VScreen(vwidth, vheight, xOffset, yOffset);
+                            var screen = new VScreen(vwidth, vheight, xOffset, yOffset);
                             screens.Add(screen);
                             screen.PrintBorders();
                         }
-                        else break;
-                    }
+                        else
+                        {
+                            break;
+                        }
                 }
             }
         }
 
         /// <summary>
-        /// Starting point of this application.
+        ///     Starting point of this application.
         /// </summary>
         /// <param name="args">Commandline arguments</param>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // Guaranteed to be set to non-null value later on.
-            List<VScreen> screens = null;
+            List<VScreen> screens;
 
-            /* args: MultiCube.exe (<height> <width>) <skipResize> 
+            /* Usage: MultiCube.exe (<height> <width>) <skipResize> 
                <height> console window height in characters : a positive integer
                <width> console window width in characters : a positive integer
                <skipResize> skip the resizing prompt : ("true"/"false")
                All parameters are optional, though if you provide height or width,
                you must provide both of them.
              */
+
+            if (args.Length == 1 && args[0].Contains("help"))
+            {
+                Console.WriteLine(Usage);
+                return;
+            }
 
             // If there are at least two valid numbers given as argument...
             if (args.Length > 1 && int.TryParse(args[0], out int height) && int.TryParse(args[1], out int width))
@@ -181,80 +203,180 @@ namespace MultiCube
                     Init(out screens, height, width, false);
             // If the numbers aren't valid or given, defaults will be passed into Init().
             else
-                Init(out screens, (int)(Console.LargestWindowHeight / 1.3), (int)(Console.LargestWindowWidth / 1.3), false);
+                Init(out screens, (int) (Console.LargestWindowHeight / 1.3), (int) (Console.LargestWindowWidth / 1.3),
+                    false);
 
             #region Cursor being visible workaround
-            // Every second, a background task disables the cursor to workaround a bug in the windows console that causes it to become visible again.
-            void cursorFix(Task f) { Console.CursorVisible = false; Task.Delay(1000).ContinueWith(cursorFix); }
-            new Task(() => Task.Delay(0).ContinueWith(cursorFix)).Start();
+
+            // Every second, a background task disables the cursor to workaround an oversight in the windows console that sometimes causes it to become visible again.
+            void CursorFix(Task f)
+            {
+                Console.CursorVisible = false;
+                Task.Delay(1000).ContinueWith(CursorFix);
+            }
+
+            new Task(() => Task.Delay(0).ContinueWith(CursorFix)).Start();
+
             #endregion
 
-            List<ScreenContainer> sc = new List<ScreenContainer>();
+            var sc = new List<ScreenContainer>();
 
-            // Create a new ScreenContainer instance for each 
+            // Create a new ScreenContainer instance for each screen-cube-pair.
             foreach (VScreen screen in screens)
                 sc.Add(new ScreenContainer(screen));
             screens.Clear();
 
             byte sel = 0;
 
-            sc[sel].Screen.PrintBorders(ConsoleColor.Green); // Marks the currently selected screen
+            sc[sel].Screen.PrintBorders(color: ConsoleColor.Green); // Marks the currently selected screen
 
-            int fheight = Console.BufferHeight = Console.WindowHeight;
-            int fwidth = Console.BufferWidth = Console.WindowWidth;
+            Console.BufferHeight = Console.WindowHeight;
+            Console.BufferWidth = Console.WindowWidth;
 
             // If escape is pressed later, the program will exit
             bool exit = false;
-            // The amount of times the main loop code should run until the result is put out.
-            const int runsBeforeOutput = 5;
             // factor by which a cube is rotated into a direction. Will be passed by into ScreenContainer.ProcessKeypress() later
-            double rotationFactor = SPEED;
+            double rotationFactor = NormalFactor;
             // A counter for renabling the intro if it was disabled. Look at ScreenContainer.ProcessKeypress() to see how it's used
             byte enableCombination = 0;
-            ConsoleKeyInfo keyPress = new ConsoleKeyInfo();
-            // Used for checking how fast the while loop below was executed.
-            Stopwatch watch = new Stopwatch();
-            while (!exit)
+#if DEBUG
+            int fps = 0;
+
+            #region Print frames per second
+
+            // ReSharper disable once ImplicitlyCapturedClosure
+            void PrintFps(Task f)
             {
-                watch.Restart();
-                // We run the program multiple times before output because it seems smoother to users.
-                for (int runs = 0; runs != runsBeforeOutput; runs++)
+                Console.Title = $"{fps} fps";
+                fps = 0;
+                Task.Delay(1000).ContinueWith(PrintFps);
+            }
+
+            new Task(() => Task.Delay(1000).ContinueWith(PrintFps)).Start();
+
+            #endregion
+
+#endif
+
+            async Task Input()
+            {
+                await Task.Run(() =>
                 {
-                    Parallel.For(0, sc.Count, i =>
-                        sc[i].Autorotate());
+                    if (!Console.KeyAvailable) return;
+                    ConsoleKeyInfo keyPress = Console.ReadKey(true);
 
-                    if (Console.KeyAvailable)
-                    {
-                        keyPress = Console.ReadKey(true);
-                        sc[sel].ProcessKeypress(ref keyPress, ref rotationFactor, ref exit, sel, ref enableCombination, out byte newSel);
+                    sc[sel].ProcessKeypress(ref keyPress, ref rotationFactor, ref exit, sel,
+                        ref enableCombination,
+                        out byte newSel);
 
-                        // Giving a hint to the IL compiler's optimization routines. (Most likely case first)
-                        if (newSel == sel) { }
-                        else if (newSel < sc.Count)
+                    if (sel == newSel || newSel >= sc.Count) return;
+                    sc[sel].Screen.PrintBorders(color: Console.ForegroundColor);
+                    sel = newSel;
+                    sc[sel].Screen.PrintBorders(color: ConsoleColor.Green);
+                });
+            }
+
+            async Task Autorotate()
+            {
+                await Task.WhenAll(
+                    Task.Run(
+                        () =>
                         {
-                            sc[sel].Screen.PrintBorders(Console.ForegroundColor);
-                            sel = newSel;
-                            sc[sel].Screen.PrintBorders(ConsoleColor.Green);
-                        }
+                            foreach (ScreenContainer c in sc)
+                                c.Autorotate();
+                        }),
+                    Task.Delay(ProcessTime));
+            }
+
+            async Task Output()
+            {
+                await Task.Run(() =>
+                {
+                    // Outputting all screens one after another is faster than doing so in parallel due to console locking.
+                    foreach (ScreenContainer c in sc)
+                    {
+                        // We don't want to draw a cube atop the previous projection so we have to clear the screen, so we clear it beforehand
+                        c.Screen.Clear();
+                        c.Cube.ProjectToVScreen(c.Screen);
+                        c.Screen.Output();
+                    }
+                });
+#if DEBUG
+                fps++;
+#endif
+            }
+
+            // Less aggressive GC.
+            GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
+
+            Task input = Task.CompletedTask;
+            Task autorotate = Task.CompletedTask;
+            Task output = Task.CompletedTask;
+            try
+            {
+                while (!exit)
+                {
+                    // Reduces CPU load
+                    // ReSharper disable AccessToModifiedClosure
+                    SpinWait.SpinUntil(() => input.IsCompleted || autorotate.IsCompleted || output.IsCompleted);
+                    // ReSharper restore AccessToModifiedClosure
+
+                    if (input.IsCompleted)
+                    {
+                        if (!input.IsFaulted)
+                            input = Input();
+                        else if (input.Exception != null) throw input.Exception;
+                    }
+
+                    if (autorotate.IsCompleted)
+                    {
+                        if (!input.IsFaulted)
+                            autorotate = Autorotate();
+                        else if (autorotate.Exception != null) throw autorotate.Exception;
+                    }
+
+                    if (!output.IsCompleted) continue;
+
+                    if (!output.IsFaulted)
+                        output = Output();
+                    else if (output.Exception != null) throw output.Exception;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.CursorTop = Console.CursorLeft = 0;
+                Console.WriteLine("An unknown exception has occured.");
+
+                #region Exception logging
+
+                string logPath =
+                    Environment.ExpandEnvironmentVariables($@"%tmp%\MultiCube-Exception-{DateTime.Now.Ticks}.log");
+                try
+                {
+                    using (var w = new StreamWriter(logPath, false, Encoding.UTF8))
+                    {
+                        bool done;
+                        Console.WriteLine($"A log is going to be written to {logPath}.");
+                        string name = Assembly.GetExecutingAssembly().GetName().FullName;
+                        w.WriteLine($"{name}");
+                        do
+                        {
+                            w.WriteLine(e.StackTrace);
+                            w.WriteLine(e.Message);
+                            w.WriteLine(e.Source);
+                            w.WriteLine(e.TargetSite);
+                            done = null == e.InnerException;
+                            if (!done) e = e.InnerException;
+                            w.WriteLine();
+                        } while (!done);
                     }
                 }
-
-                Parallel.For(0, sc.Count, i =>
+                catch (Exception)
                 {
-                    // We don't want to draw a cube atop the previous projection so we have to clear the screen, so we clear it beforehand
-                    sc[i].Screen.Clear();
-                    sc[i].Cube.UpdateProjection(sc[i].Screen);
-                });
+                    // Probably unwritable path. Let's not write a log in that case.
+                }
 
-                // Refreshing all screens one after another is faster than doing so in parallel due to console locking.
-                for (int i = 0; i < sc.Count; i++)
-                    sc[i].Screen.Refresh();
-
-                watch.Stop();
-                // Tolerance increases consistency.
-                if (tolTime > watch.Elapsed)
-                    // A little Thread.Sleep() gives the CPU some pause and keeps cube rotation speeds (relatively) consistent :)
-                    Thread.Sleep(minTime - watch.Elapsed);
+                #endregion
             }
         }
     }
