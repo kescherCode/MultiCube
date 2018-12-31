@@ -14,11 +14,12 @@ namespace MultiCube
 
         /// <summary>
         /// Sets the values in a new Scalar3D struct.
+        /// For internal use.
         /// </summary>
         /// <param name="x">X coordinate</param>
         /// <param name="y">Y coordinate</param>
         /// <param name="z">Z coordinate</param>
-        public Scalar3D(double x = 0d, double y = 0d, double z = 0d)
+        private Scalar3D(double x = 0d, double y = 0d, double z = 0d)
         {
             X = x;
             Y = y;

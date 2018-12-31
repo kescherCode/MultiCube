@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using static MultiCube.Globals;
 
 namespace MultiCube
@@ -14,26 +11,84 @@ namespace MultiCube
         // These constants "magnify" the view field and divide the total of coord, screen width and viewFactor.
         private const double ViewFactor = 2.5f, PointDivisor = 5;
 
-        // All possible corners on a cube
-        private static readonly List<Scalar3D> Corners = new List<Scalar3D>
+        private static readonly LineData[] Lines =
         {
-            new Scalar3D(-1, -1, -1),
-            new Scalar3D(1, -1, -1),
-            new Scalar3D(1, -1, 1),
-            new Scalar3D(-1, -1, 1),
-            new Scalar3D(-1, 1, 1),
-            new Scalar3D(-1, 1, -1),
-            new Scalar3D(1, 1, -1),
-            new Scalar3D(1, 1, 1)
-        };
+            #region Lines between corners of a cube
 
-        // A LINQ query that puts all valid corner coordinates into a collection of LineData
-        private static readonly IEnumerable<LineData> Lines = (
-            from a in Corners
-            from b in Corners
-            where Math.Abs((a - b).Length - 2) < double.Epsilon && a.X + a.Y + a.Z > b.X + b.Y + b.Z
-            select new LineData(a, b)
-        ).ToList();
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = -1, Z = -1},
+                B = new Scalar3D {X = -1, Y = -1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = -1, Z = 1},
+                B = new Scalar3D {X = 1, Y = -1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = -1, Z = 1},
+                B = new Scalar3D {X = -1, Y = -1, Z = 1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = -1, Y = -1, Z = 1},
+                B = new Scalar3D {X = -1, Y = -1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = -1, Y = 1, Z = 1},
+                B = new Scalar3D {X = -1, Y = -1, Z = 1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = -1, Y = 1, Z = 1},
+                B = new Scalar3D {X = -1, Y = 1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = -1, Y = 1, Z = -1},
+                B = new Scalar3D {X = -1, Y = -1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = 1, Z = -1},
+                B = new Scalar3D {X = 1, Y = -1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = 1, Z = -1},
+                B = new Scalar3D {X = -1, Y = 1, Z = -1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = 1, Z = 1},
+                B = new Scalar3D {X = 1, Y = -1, Z = 1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = 1, Z = 1},
+                B = new Scalar3D {X = -1, Y = 1, Z = 1}
+            },
+
+            new LineData
+            {
+                A = new Scalar3D {X = 1, Y = 1, Z = 1},
+                B = new Scalar3D {X = 1, Y = 1, Z = -1}
+            }
+
+            #endregion
+        };
 
         // _ledgeStep is _ledgeLength
         private readonly int _ledgeStep;
@@ -112,14 +167,8 @@ namespace MultiCube
         /// </summary>
         private struct LineData
         {
-            public readonly Scalar3D A;
-            public readonly Scalar3D B;
-
-            public LineData(Scalar3D a, Scalar3D b)
-            {
-                A = a;
-                B = b;
-            }
+            public Scalar3D A;
+            public Scalar3D B;
         }
     }
 }
