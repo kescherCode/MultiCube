@@ -18,4 +18,4 @@ Either download the source directly and then open the project in Microsoft Visua
 
 ## License
 
-[Click here to to view the license](https://github.com/Skayo/MultiCube/blob/master/LICENSE)
+[Click here to to view the license](https://github.com/filthycoding/MultiCube/blob/master/LICENSE)
