@@ -6,6 +6,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.ConsoleKey;
 using static MultiCube.Globals;
 
 namespace MultiCube
@@ -44,9 +45,7 @@ namespace MultiCube
                 for (int i = 0; i < respects.Length; i++)
                 {
                     if (Console.CursorLeft != 0)
-                    {
                         Console.Write("\b \b");
-                    }
                     else
                     {
                         Console.CursorTop--;
@@ -88,10 +87,10 @@ namespace MultiCube
                     // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (Console.ReadKey(true).Key)
                     {
-                        case ConsoleKey.Escape:
+                        case Escape:
                             Environment.Exit(0);
                             break;
-                        case ConsoleKey.F:
+                        case F:
                             RegistrySettings.ShowIntro = false;
                             Console.WriteLine("[Registry] Tutorial disabled.");
                             break;
@@ -131,8 +130,12 @@ namespace MultiCube
             if (!skipResize)
                 lock (ConsoleLock)
                 {
+                    ConsoleKeyInfo key;
                     Console.WriteLine("Resize the window to a size you like and press any key.");
-                    Console.ReadKey(true);
+                    do
+                    {
+                        key = Console.ReadKey(true);
+                    } while (key.Key == LeftWindows || key.Key == RightWindows);
                 }
 
             // Considering the possibility of launching from command line, we don't want to have any residual output from it left on the screen.
@@ -162,9 +165,7 @@ namespace MultiCube
                             screen.PrintBorders();
                         }
                         else
-                        {
                             break;
-                        }
                 }
             }
         }
@@ -356,7 +357,7 @@ namespace MultiCube
                     using (var w = new StreamWriter(logPath, false, Encoding.UTF8))
                     {
                         bool done;
-                        Console.WriteLine($"A log is going to be written to {logPath}.");
+                        Console.WriteLine($"A log is going to be written to {logPath}. Please send this to the developer, with a description of what you were trying to do!");
                         string name = Assembly.GetExecutingAssembly().GetName().FullName;
                         w.WriteLine($"{name}");
                         do
