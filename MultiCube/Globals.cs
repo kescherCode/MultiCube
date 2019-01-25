@@ -3,7 +3,7 @@
 namespace MultiCube
 {
     /// <summary>
-    /// Stores "global" variables.
+    ///     Stores "global" variables.
     /// </summary>
     internal struct Globals
     {

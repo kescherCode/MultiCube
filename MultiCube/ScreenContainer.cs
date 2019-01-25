@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
 using static System.ConsoleKey;
 using static System.ConsoleModifiers;
@@ -11,12 +10,12 @@ using Process = System.Diagnostics.Process;
 namespace MultiCube
 {
     /// <summary>
-    /// A class that combines a Screen and a Cube in one.
+    ///     A class that combines a Screen and a Cube in one.
     /// </summary>
     internal class ScreenContainer
     {
         /// <summary>
-        /// Initializes a ScreenContainer instance that creates a new Cube for the given screen.
+        ///     Initializes a ScreenContainer instance that creates a new Cube for the given screen.
         /// </summary>
         /// <param name="screen">VScreen that needs a Cube</param>
         public ScreenContainer(VScreen screen)
@@ -36,7 +35,7 @@ namespace MultiCube
         private bool ManualControl { get; set; } = true;
 
         /// <summary>
-        /// Processes a keypress.
+        ///     Processes a keypress.
         /// </summary>
         /// <param name="keyPress">The keypress reference.</param>
         /// <param name="rotationFactor">The rotationFactor reference.</param>

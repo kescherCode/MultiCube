@@ -357,7 +357,8 @@ namespace MultiCube
                     using (var w = new StreamWriter(logPath, false, Encoding.UTF8))
                     {
                         bool done;
-                        Console.WriteLine($"A log is going to be written to {logPath}. Please send this to the developer, with a description of what you were trying to do!");
+                        Console.WriteLine(
+                            $"A log is going to be written to {logPath}. Please send this to the developer, with a description of what you were trying to do!");
                         string name = Assembly.GetExecutingAssembly().GetName().FullName;
                         w.WriteLine($"{name}");
                         do

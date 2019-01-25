@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace MultiCube
 {
     /// <summary>
-    /// Stores 3D coordinates.
+    ///     Stores 3D coordinates.
     /// </summary>
     internal struct Scalar3D
     {
@@ -13,8 +13,8 @@ namespace MultiCube
         public double Z;
 
         /// <summary>
-        /// Sets the values in a new Scalar3D struct.
-        /// For internal use.
+        ///     Sets the values in a new Scalar3D struct.
+        ///     For internal use.
         /// </summary>
         /// <param name="x">X coordinate</param>
         /// <param name="y">Y coordinate</param>
