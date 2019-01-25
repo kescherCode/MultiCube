@@ -1,4 +1,5 @@
 # MultiCube
+<img src="MultiCube-Icon.svg" width=200px/>
 A small C# console application to display multiple cubes in windows, based on <a href="https://github.com/filthycoding/RotatingCube">a previous project of mine</a>
 
 ## Controls
@@ -19,3 +20,6 @@ Either download the source directly and then open the project in Microsoft Visua
 ## License
 
 [Click here to to view the license](https://github.com/filthycoding/MultiCube/blob/master/LICENSE)
+
+## Credits
+Thank you @Skayo for making a proper README and an icon for the project!
