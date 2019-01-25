@@ -15,3 +15,7 @@ Press the **.** (period, dot) key to open a new instance of the program and end 
 ## Download
 
 Either download the source directly and then open the project in Microsoft Visual Studio, or just grab a pre-built binary file from the [releases](https://github.com/filthycoding/MultiCube/releases) page!
+
+## License
+
+[Click here to to view the license](https://github.com/Skayo/MultiCube/blob/master/LICENSE)
