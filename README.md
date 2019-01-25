@@ -22,4 +22,4 @@ Either download the source directly and then open the project in Microsoft Visua
 [Click here to to view the license](https://github.com/filthycoding/MultiCube/blob/master/LICENSE)
 
 ## Credits
-Thank you @Skayo for making a proper README and an icon for the project!
+Thank you [@Skayo](https://github.com/Skayo) for making a proper README and an icon for the project!
