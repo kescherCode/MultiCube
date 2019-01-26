@@ -1,6 +1,27 @@
-# MultiCube
-<img src="MultiCube-Icon.svg" width=200px/>
-A small C# console application to display multiple cubes in windows, based on <a href="https://github.com/filthycoding/RotatingCube">a previous project of mine</a>
+<h1 align="center">
+  <br>
+  <img src="MultiCube-Icon.svg" width="300" alt="semicolon.js">
+  <br>
+  MultiCube
+  <br>
+</h1>
+
+<h4 align="center">A small C# application to display multiple 3D-Cubes in a cmd window, based on <a href="https://github.com/filthycoding/RotatingCube">a previous project of mine</a></h4>
+
+<p align="center">
+  <a href="https://github.com/filthycoding/MultiCube/releases"><img src="https://img.shields.io/github/downloads/filthycoding/MultiCube/total.svg" alt="Downloads"></a>
+  <a href="https://github.com/filthycoding/MultiCube/issues"><img src="https://img.shields.io/github/issues/filthycoding/MultiCube.svg" alt="Issues"></a>
+  <a href="https://github.com/filthycoding/MultiCube/pulls"><img src="https://img.shields.io/github/issues-pr/filthycoding/MultiCube.svg" alt="Pull Requests" ></a>
+  <a href="https://github.com/filthycoding/MultiCube/blob/master/LICENSE"><img src="https://img.shields.io/github/license/filthycoding/MultiCube.svg" alt="License"></a>
+  <a href="https://github.com/filthycoding/MultiCube/releases/latest"><img src="https://img.shields.io/github/release/filthycoding/MultiCube.svg" alt="Version"></a>
+</p>
+
+<p align="center">
+  <a href="#controls">Controls</a> •
+  <a href="#download">Download</a> •
+  <a href="#license">License</a> •
+  <a href="#credits">Credits</a>
+</p>
 
 ## Controls
 
@@ -15,7 +36,7 @@ Press the **.** (period, dot) key to open a new instance of the program and end 
 
 ## Download
 
-Either download the source directly and then open the project in Microsoft Visual Studio, or just grab a pre-built binary file from the [releases](https://github.com/filthycoding/MultiCube/releases) page!
+Either [download the source directly](https://github.com/filthycoding/MultiCube/archive/master.zip) and then open the project in Microsoft Visual Studio, or just grab a pre-built binary file from the [releases](https://github.com/filthycoding/MultiCube/releases) page!
 
 ## License
 
