@@ -141,13 +141,13 @@ namespace MultiCube
         /// <param name="screen">VScreen instance to print to</param>
         public void ProjectToVScreen(VScreen screen)
         {
-            foreach (LineData line in Lines)
+            for (int i = Lines.Length - 1; i != -1; --i)
             {
-                Scalar3D diff = line.A - line.B;
-                for (int i = 0; i < _ledgeStep; ++i)
+                Scalar3D diff = Lines[i].A - Lines[i].B;
+                for (int j = 0; j < _ledgeStep; ++j)
                 {
                     // Find a point on the line between A and B.
-                    Scalar3D p = line.A + (i / _ledgeLength - 1) * diff;
+                    Scalar3D p = Lines[i].A + (j / _ledgeLength - 1) * diff;
                     // Moves the point to where it is if the cube is rotated
                     p.Rotate(_angleX, _angleY, _angleZ);
                     // Projects the point into 2d space. The parameters act as a kind of camera setting.

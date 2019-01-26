@@ -24,13 +24,13 @@ namespace MultiCube
                 Console.ForegroundColor = color;
                 // Print vertical right-hand screen border
                 Console.CursorLeft = screen.XOffset + screen.WindowWidth;
-                for (int y = 0; y < screen.WindowHeight; y++)
+                for (int y = 0; y < screen.WindowHeight; ++y)
                     try
                     {
                         Console.CursorTop = screen.YOffset + y;
                         Console.Write(verticalBorderChar);
                         // Move the cursor left after writing
-                        Console.CursorLeft--;
+                        --Console.CursorLeft;
                     }
                     catch (ArgumentOutOfRangeException)
                     {
@@ -39,7 +39,7 @@ namespace MultiCube
 
                 // Print horizontal bottom screen border
                 Console.CursorTop = screen.YOffset + screen.WindowHeight;
-                for (int x = 0; x <= screen.WindowWidth; x++)
+                for (int x = 0; x <= screen.WindowWidth; ++x)
                     try
                     {
                         Console.CursorLeft = screen.XOffset + x;

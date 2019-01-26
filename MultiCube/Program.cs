@@ -42,13 +42,13 @@ namespace MultiCube
                 }
 
                 Thread.Sleep(300);
-                for (int i = 0; i < respects.Length; i++)
+                for (int i = 0; i < respects.Length; ++i)
                 {
                     if (Console.CursorLeft != 0)
                         Console.Write("\b \b");
                     else
                     {
-                        Console.CursorTop--;
+                        --Console.CursorTop;
                         Console.CursorLeft = Console.WindowHeight - 1;
                         Console.Write(" \b");
                     }
@@ -303,7 +303,7 @@ namespace MultiCube
                     }
                 });
 #if DEBUG
-                fps++;
+                ++fps;
 #endif
             }
 

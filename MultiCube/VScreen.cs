@@ -89,8 +89,8 @@ namespace MultiCube
         {
             var lines = new char[WindowWidth, WindowHeight];
 
-            for (int x = 0; x < WindowWidth; x++)
-            for (int y = 0; y < WindowHeight; y++)
+            for (int x = 0; x < WindowWidth; ++x)
+            for (int y = 0; y < WindowHeight; ++y)
                 lines[x, y] = Grid[x, y];
 
             if (clearBeforehand)
@@ -135,10 +135,10 @@ namespace MultiCube
         {
             if (!Changed) return;
 
-            for (int y = 0; y < WindowHeight; y++)
+            for (int y = 0; y < WindowHeight; ++y)
             {
                 var line = new StringBuilder();
-                for (int x = 0; x < WindowWidth; x++) line.Append(Grid[x, y]);
+                for (int x = 0; x < WindowWidth; ++x) line.Append(Grid[x, y]);
 
                 lock (ConsoleLock)
                 {
