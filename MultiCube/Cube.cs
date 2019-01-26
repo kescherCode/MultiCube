@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using static MultiCube.Globals;
+﻿using static MultiCube.Globals;
 
 namespace MultiCube
 {
@@ -142,10 +141,10 @@ namespace MultiCube
         /// <param name="screen">VScreen instance to print to</param>
         public void ProjectToVScreen(VScreen screen)
         {
-            Parallel.ForEach(Lines, line =>
+            foreach (LineData line in Lines)
             {
                 Scalar3D diff = line.A - line.B;
-                Parallel.For(0, _ledgeStep, i =>
+                for (int i = 0; i < _ledgeStep; ++i)
                 {
                     // Find a point on the line between A and B.
                     Scalar3D p = line.A + (i / _ledgeLength - 1) * diff;
@@ -157,9 +156,9 @@ namespace MultiCube
                     int x = (int) ((q.X + screen.WindowWidth * ViewFactor) / PointDivisor);
                     int y = (int) ((q.Y + screen.WindowHeight * ViewFactor) / PointDivisor);
                     // Pushes the character to the screen
-                    screen.Push(CubeChar, x, y);
-                });
-            });
+                    screen.Push(p.Z < 0.3d ? CubeCharFG : CubeCharBG, x, y);
+                }
+            }
         }
 
         /// <summary>

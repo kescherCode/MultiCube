@@ -127,6 +127,7 @@ namespace MultiCube
         }
 
         // Returns the sum of all coordinates squared.
+        // ReSharper disable once UnusedMember.Global
         public double Length => Math.Sqrt(X * X + Y * Y + Z * Z);
 
         public static Scalar3D operator *(double scale, Scalar3D x)

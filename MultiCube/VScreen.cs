@@ -69,6 +69,7 @@ namespace MultiCube
         /// <param name="x">x-coordinate of the char</param>
         /// <param name="y">y-coordinate of the char</param>
         /// <returns>The char assigned to the coordinate</returns>
+        // ReSharper disable once UnusedMember.Global
         public char this[int x, int y]
         {
             get => Grid[x, y];
@@ -83,6 +84,7 @@ namespace MultiCube
         /// <param name="yMove">Defines by how many characters the screen is moved vertically</param>
         /// <param name="clearBeforehand">Defines if the screen should clean up the area it used before moving.</param>
         /// <param name="outputAfterMove">Defines if the screen should output its contents after being moved.</param>
+        // ReSharper disable once UnusedMember.Global
         public void MoveOffset(int xMove = 0, int yMove = 0, bool clearBeforehand = false, bool outputAfterMove = false)
         {
             var lines = new char[WindowWidth, WindowHeight];
