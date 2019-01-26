@@ -38,6 +38,10 @@ Press the **.** (period, dot) key to open a new instance of the program and end 
 
 Either [download the source directly](https://github.com/filthycoding/MultiCube/archive/master.zip) and then open the project in Microsoft Visual Studio, or just grab a pre-built binary file from the [releases](https://github.com/filthycoding/MultiCube/releases) page!
 
+## Screenshot
+
+![Screenshot](screenshot.png)
+
 ## License
 
 [Click here to to view the license](https://github.com/filthycoding/MultiCube/blob/master/LICENSE)
