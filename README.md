@@ -19,6 +19,7 @@
 <p align="center">
   <a href="#controls">Controls</a> •
   <a href="#download">Download</a> •
+  <a href="#screenshot">Screenshot</a> •
   <a href="#license">License</a> •
   <a href="#credits">Credits</a>
 </p>
