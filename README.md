@@ -37,7 +37,7 @@ Press the **.** (period, dot) key to open a new instance of the program and end 
 
 ## Download
 
-Either [download the source directly](https://github.com/filthycoding/MultiCube/archive/master.zip) and then open the project in Microsoft Visual Studio, or just grab a pre-built binary file from the [releases](https://github.com/filthycoding/MultiCube/releases) page!
+Either [download the source directly](https://github.com/filthycoding/MultiCube/archive/master.zip) and then open the project in Microsoft Visual Studio 2017 (be sure to have .NET Framework 4.7.2 installed), or just grab a pre-built binary file from the [releases](https://github.com/filthycoding/MultiCube/releases) page!
 
 ## Screenshot
 
