@@ -135,7 +135,7 @@ namespace MultiCube
         {
             if (!Changed) return;
             
-            var line = new StringBuilder();
+            var line = new StringBuilder(WindowWidth);
             for (int y = 0; y < WindowHeight; ++y)
             {
                 line.Clear();
@@ -144,7 +144,7 @@ namespace MultiCube
                 lock (ConsoleLock)
                 {
                     Console.SetCursorPosition(XOffset, y + YOffset);
-                    Console.Write(line.ToString());
+                    Console.Write(line);
                 }
             }
 
