@@ -41,7 +41,7 @@ namespace MultiCube
             Grid = new char[width, height];
             _empty = new char[width, height];
             for (int x = 0; x < width; ++x)
-            for (int y = 0; y < width; ++y)
+            for (int y = 0; y < height; ++y)
                 Grid[x, y] = _empty[x, y] = ' ';
 
             WindowWidth = width;
@@ -134,10 +134,11 @@ namespace MultiCube
         public void Output()
         {
             if (!Changed) return;
-
+            
+            var line = new StringBuilder();
             for (int y = 0; y < WindowHeight; ++y)
             {
-                var line = new StringBuilder();
+                line.Clear();
                 for (int x = 0; x < WindowWidth; ++x) line.Append(Grid[x, y]);
 
                 lock (ConsoleLock)
