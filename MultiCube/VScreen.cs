@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Threading.Tasks;
 using static MultiCube.Globals;
 
 namespace MultiCube
@@ -21,11 +20,6 @@ namespace MultiCube
         /// <param name="yOffset">Vertical offset of the top-left corner of the VScreen.</param>
         public VScreen(int width, int height, int xOffset, int yOffset)
         {
-            Grid = new char[width, height];
-            _empty = new char[width, height];
-            Parallel.For(0, width,
-                x => { Parallel.For(0, height, y => { Grid[x, y] = _empty[x, y] = ' '; }); });
-
             if (width > Console.WindowWidth)
                 throw new ArgumentOutOfRangeException(nameof(width),
                     "width was greater than the console window's width.");
@@ -43,6 +37,12 @@ namespace MultiCube
             if (height + yOffset > Console.WindowHeight)
                 throw new ArgumentOutOfRangeException(nameof(yOffset),
                     "yOffset + width was greater than the console window width.");
+
+            Grid = new char[width, height];
+            _empty = new char[width, height];
+            for (int x = 0; x < width; ++x)
+            for (int y = 0; y < width; ++y)
+                Grid[x, y] = _empty[x, y] = ' ';
 
             WindowWidth = width;
             WindowHeight = height;
