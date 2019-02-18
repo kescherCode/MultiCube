@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Runtime;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.ConsoleKey;
@@ -91,7 +88,7 @@ namespace MultiCube
                             Environment.Exit(0);
                             break;
                         case F:
-                            RegistrySettings.ShowIntro = false;
+                            Settings.ShowIntro = false;
                             Console.WriteLine("[Registry] Tutorial disabled.");
                             break;
                         default:
@@ -143,7 +140,7 @@ namespace MultiCube
 
             screens = new List<VScreen>();
 
-            if (RegistrySettings.ShowIntro) Intro();
+            if (Settings.ShowIntro) Intro();
             lock (ConsoleLock)
             {
                 // Virtual screen sizes. They were found by trial and error.
@@ -325,60 +322,51 @@ namespace MultiCube
                     if (input.IsCompleted)
                     {
                         if (!input.IsFaulted)
+                        {
+                            input.Dispose();
                             input = Input();
-                        else if (input.Exception != null) throw input.Exception;
+                        }
+                        else if (input.Exception != null)
+                        {
+                            AggregateException ex = output.Exception;
+                            output.Dispose();
+                            throw ex;
+                        }
                     }
 
                     if (autorotate.IsCompleted)
                     {
                         if (!input.IsFaulted)
+                        {
+                            autorotate.Dispose();
                             autorotate = Autorotate();
-                        else if (autorotate.Exception != null) throw autorotate.Exception;
+                        }
+                        else if (autorotate.Exception != null)
+                        {
+                            AggregateException ex = autorotate.Exception;
+                            autorotate.Dispose();
+                            throw ex;
+                        }
                     }
 
                     if (!output.IsCompleted) continue;
 
                     if (!output.IsFaulted)
+                    {
+                        output.Dispose();
                         output = Output();
-                    else if (output.Exception != null) throw output.Exception;
+                    }
+                    else if (output.Exception != null)
+                    {
+                        AggregateException ex = output.Exception;
+                        output.Dispose();
+                        throw ex;
+                    }
                 }
             }
             catch (Exception e)
             {
-                Console.CursorTop = Console.CursorLeft = 0;
-                Console.WriteLine("An unknown exception has occured.");
-
-                #region Exception logging
-
-                string logPath =
-                    Environment.ExpandEnvironmentVariables($@"%tmp%\MultiCube-Exception-{DateTime.Now.Ticks}.log");
-                try
-                {
-                    using (var w = new StreamWriter(logPath, false, Encoding.UTF8))
-                    {
-                        bool done;
-                        Console.WriteLine(
-                            $"A log is going to be written to {logPath}. Please send this to the developer, with a description of what you were trying to do!");
-                        string name = Assembly.GetExecutingAssembly().GetName().FullName;
-                        w.WriteLine($"{name}");
-                        do
-                        {
-                            w.WriteLine(e.StackTrace);
-                            w.WriteLine(e.Message);
-                            w.WriteLine(e.Source);
-                            w.WriteLine(e.TargetSite);
-                            done = null == e.InnerException;
-                            if (!done) e = e.InnerException;
-                            w.WriteLine();
-                        } while (!done);
-                    }
-                }
-                catch (Exception)
-                {
-                    // Probably unwritable path. Let's not write a log in that case.
-                }
-
-                #endregion
+                LogException(e);
             }
         }
     }

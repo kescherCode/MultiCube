@@ -4,7 +4,7 @@ using static System.ConsoleKey;
 using static System.ConsoleModifiers;
 using static System.Math;
 using static MultiCube.Globals;
-using static MultiCube.RegistrySettings;
+using static MultiCube.Settings;
 using Process = System.Diagnostics.Process;
 
 namespace MultiCube
@@ -159,9 +159,9 @@ namespace MultiCube
 
                     break;
                 case OemPeriod:
+                    var thing = Assembly.GetExecutingAssembly().Location;
                     // Start a new process using the path the current .exe was started from and exit the current process.
-                    Process.Start(Assembly.GetExecutingAssembly().Location,
-                        $"{Console.WindowHeight} {Console.WindowWidth} true");
+                    Process.Start("dotnet", $"{thing} {Console.WindowHeight} {Console.WindowWidth} true");
                     Environment.Exit(0);
                     break;
                 default:
