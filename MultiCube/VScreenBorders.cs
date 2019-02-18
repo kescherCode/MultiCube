@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using static MultiCube.Globals;
 
 namespace MultiCube
@@ -39,16 +40,11 @@ namespace MultiCube
 
                 // Print horizontal bottom screen border
                 Console.CursorTop = screen.YOffset + screen.WindowHeight;
+                Console.CursorLeft = screen.XOffset;
+                var sb = new StringBuilder();
                 for (int x = 0; x <= screen.WindowWidth; ++x)
-                    try
-                    {
-                        Console.CursorLeft = screen.XOffset + x;
-                        Console.Write(horizontalBorderChar);
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        /* ignore, user error with offset or VScreen size */
-                    }
+                    sb.Append(horizontalBorderChar);
+                Console.Write(sb);
 
                 Console.ForegroundColor = prevColor;
             }

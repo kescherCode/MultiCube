@@ -68,6 +68,7 @@ namespace MultiCube
             }
 
             Environment.Exit(1);
+
             #endregion
         }
     }

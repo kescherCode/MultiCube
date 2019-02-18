@@ -42,7 +42,9 @@ namespace MultiCube
                 for (int i = 0; i < respects.Length; ++i)
                 {
                     if (Console.CursorLeft != 0)
+                    {
                         Console.Write("\b \b");
+                    }
                     else
                     {
                         --Console.CursorTop;
@@ -110,19 +112,10 @@ namespace MultiCube
         private static void Init(out List<VScreen> screens, int height, int width, bool skipResize)
         {
             Console.Title = "MultiCube";
-            // If height and width are not too small or too large, set them from input parameters.
-            if (height <= Console.LargestWindowHeight &&
-                width <= Console.LargestWindowWidth &&
-                height > 1 && width > 1) { }
-            // Otherwise, set default values and disable resize skipping..
-            else
-            {
-                height = width = (int) (Console.LargestWindowHeight / 1.3);
-                skipResize = false;
-            }
 
-            Console.BufferHeight = Console.WindowHeight = height;
-            Console.BufferWidth = Console.WindowWidth = width;
+
+            // Considering the possibility of launching from command line, we don't want to have any residual output from it left on the screen.
+            Console.Clear();
 
             if (!skipResize)
                 lock (ConsoleLock)
@@ -134,9 +127,6 @@ namespace MultiCube
                         key = Console.ReadKey(true);
                     } while (key.Key == LeftWindows || key.Key == RightWindows);
                 }
-
-            // Considering the possibility of launching from command line, we don't want to have any residual output from it left on the screen.
-            Console.Clear();
 
             screens = new List<VScreen>();
 
@@ -162,7 +152,9 @@ namespace MultiCube
                             screen.PrintBorders();
                         }
                         else
+                        {
                             break;
+                        }
                 }
             }
         }
@@ -173,6 +165,8 @@ namespace MultiCube
         /// <param name="args">Commandline arguments</param>
         private static void Main(string[] args)
         {
+            if (!Environment.UserInteractive) return;
+
             // Guaranteed to be set to non-null value later on.
             List<VScreen> screens;
 
@@ -228,17 +222,14 @@ namespace MultiCube
 
             sc[sel].Screen.PrintBorders(color: ConsoleColor.Green); // Marks the currently selected screen
 
-            Console.BufferHeight = Console.WindowHeight;
-            Console.BufferWidth = Console.WindowWidth;
-
             // If escape is pressed later, the program will exit
             bool exit = false;
             // factor by which a cube is rotated into a direction. Will be passed by into ScreenContainer.ProcessKeypress() later
             double rotationFactor = NormalFactor;
-            // A counter for renabling the intro if it was disabled. Look at ScreenContainer.ProcessKeypress() to see how it's used
+            // A counter for re-enabling the intro if it was disabled. Look at ScreenContainer.ProcessKeypress() to see how it's used
             byte enableCombination = 0;
 #if DEBUG
-            int fps = 0;
+            var fps = 0;
 
             #region Print frames per second
 
@@ -316,8 +307,10 @@ namespace MultiCube
                 {
                     // Reduces CPU load
                     // ReSharper disable AccessToModifiedClosure
+                    // ReSharper disable AccessToDisposedClosure
                     SpinWait.SpinUntil(() => input.IsCompleted || autorotate.IsCompleted || output.IsCompleted);
                     // ReSharper restore AccessToModifiedClosure
+                    // ReSharper restore AccessToDisposedClosure
 
                     if (input.IsCompleted)
                     {
@@ -328,8 +321,8 @@ namespace MultiCube
                         }
                         else if (input.Exception != null)
                         {
-                            AggregateException ex = output.Exception;
-                            output.Dispose();
+                            AggregateException ex = input.Exception;
+                            input.Dispose();
                             throw ex;
                         }
                     }

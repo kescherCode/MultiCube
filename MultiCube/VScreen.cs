@@ -123,8 +123,10 @@ namespace MultiCube
                 Grid[x, y] = symbol;
             }
             else
+            {
                 throw new ArgumentException(
                     $"You picked the wrong x/y coordinates.\nc: {symbol} x: {x} y: {y}\nMaximum value of x: {WindowWidth - 1}\nMaximum value of y: {WindowHeight - 1}");
+            }
         }
 
         /// <summary>
@@ -134,7 +136,7 @@ namespace MultiCube
         public void Output()
         {
             if (!Changed) return;
-            
+
             var line = new StringBuilder(WindowWidth);
             for (int y = 0; y < WindowHeight; ++y)
             {

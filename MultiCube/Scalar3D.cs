@@ -34,14 +34,14 @@ namespace MultiCube
                 // X
                 double rad = x * Math.PI / 180d;
 
-                double cosa = Math.Cos(rad);
-                double sina = Math.Sin(rad);
+                double cosA = Math.Cos(rad);
+                double sinA = Math.Sin(rad);
 
                 // Old Y coordinate
                 double old = Y;
                 // New Y and Z coordinates'
-                Y = Y * cosa - Z * sina;
-                Z = old * sina + Z * cosa;
+                Y = Y * cosA - Z * sinA;
+                Z = old * sinA + Z * cosA;
             }
 
             if (y != 0d)
@@ -49,14 +49,14 @@ namespace MultiCube
                 // Y
                 double rad = y * Math.PI / 180d;
 
-                double cosa = Math.Cos(rad);
-                double sina = Math.Sin(rad);
+                double cosA = Math.Cos(rad);
+                double sinA = Math.Sin(rad);
 
                 // Old X coordinate
                 double old = X;
                 // New X and Z coordinates'
-                X = Z * sina + X * cosa;
-                Z = Z * cosa - old * sina;
+                X = Z * sinA + X * cosA;
+                Z = Z * cosA - old * sinA;
             }
 
             if (z == 0d) return;
@@ -64,14 +64,14 @@ namespace MultiCube
                 // Z
                 double rad = z * Math.PI / 180d;
 
-                double cosa = Math.Cos(rad);
-                double sina = Math.Sin(rad);
+                double cosA = Math.Cos(rad);
+                double sinA = Math.Sin(rad);
 
                 // Old X coordinate
                 double old = X;
                 // New X and Y axis'
-                X = X * cosa - Y * sina;
-                Y = Y * cosa + old * sina;
+                X = X * cosA - Y * sinA;
+                Y = Y * cosA + old * sinA;
             }
         }
 
@@ -80,13 +80,13 @@ namespace MultiCube
         {
             double radius = angle * Math.PI / 180d;
 
-            double cosa = Math.Cos(radius);
-            double sina = Math.Sin(radius);
+            double cosA = Math.Cos(radius);
+            double sinA = Math.Sin(radius);
 
             double oldY = Y;
             // New Y and Z coordinates'
-            double newY = Y * cosa - Z * sina;
-            double newZ = oldY * sina + Z * cosa;
+            double newY = Y * cosA - Z * sinA;
+            double newZ = oldY * sinA + Z * cosA;
             return new Scalar3D(X, newY, newZ);
         }
 
@@ -94,13 +94,13 @@ namespace MultiCube
         {
             double radius = angle * Math.PI / 180d;
 
-            double cosa = Math.Cos(radius);
-            double sina = Math.Sin(radius);
+            double cosA = Math.Cos(radius);
+            double sinA = Math.Sin(radius);
 
             double oldX = X;
             // New X and Z coordinates'
-            X = Z * sina + X * cosa;
-            Z = Z * cosa - oldX * sina;
+            X = Z * sinA + X * cosA;
+            Z = Z * cosA - oldX * sinA;
             return this;
         }
 
@@ -108,13 +108,13 @@ namespace MultiCube
         {
             double radius = angle * Math.PI / 180d;
 
-            double cosa = Math.Cos(radius);
-            double sina = Math.Sin(radius);
+            double cosA = Math.Cos(radius);
+            double sinA = Math.Sin(radius);
 
             double oldX = X;
             // New X and Y axis'
-            X = X * cosa - Y * sina;
-            Y = Y * cosa + oldX * sina;
+            X = X * cosA - Y * sinA;
+            Y = Y * cosA + oldX * sinA;
             return this;
         }
         // ReSharper restore UnusedMember.Global

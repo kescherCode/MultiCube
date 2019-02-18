@@ -7,7 +7,7 @@ namespace MultiCube
     /// </summary>
     internal class Cube
     {
-        // These constants "magnify" the view field and divide the total of coord, screen width and viewFactor.
+        // These constants "magnify" the view field and divide the total of a coordinate, screen width and viewFactor.
         private const double ViewFactor = 2.5f, PointDivisor = 5;
 
         private static readonly LineData[] Lines =
@@ -96,7 +96,7 @@ namespace MultiCube
         private double _angleX, _angleY, _angleZ;
 
         /// <summary>
-        ///     Initializes a new Cube instanze.
+        ///     Initializes a new Cube instance.
         /// </summary>
         /// <param name="size">Cube size</param>
         /// <param name="fov">Field of view around the cube</param>

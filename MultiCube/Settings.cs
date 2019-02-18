@@ -47,7 +47,8 @@ namespace MultiCube
             // Default value: true
             // Try getting value from Config. If unsuccessful, return default value, else: Try to parse value. If unsuccessful, return default value, else: return parsed value;
             get =>
-                !Config.TryGetValue("showIntro", out string configStr) || !bool.TryParse(configStr.ToLower(), out bool val) || val;
+                !Config.TryGetValue("showIntro", out string configStr) ||
+                !bool.TryParse(configStr.ToLower(), out bool val) || val;
             set => WriteToConfig(new KeyValuePair<string, string>("showIntro", value.ToString()));
         }
 
@@ -72,7 +73,10 @@ namespace MultiCube
                                 w.WriteLine($"{configPair.Key}:{configPair.Value}");
                                 applied = true;
                             }
-                            else w.WriteLine(line);
+                            else
+                            {
+                                w.WriteLine(line);
+                            }
                         }
 
                         if (!applied) w.WriteLine($"{configPair.Key}:{configPair.Value}");
@@ -84,7 +88,7 @@ namespace MultiCube
                     using (var r = new StreamReader(ConfigFile + ".tmp", UTF8))
                     {
                         while (!r.EndOfStream)
-                        w.WriteLine(r.ReadLine());
+                            w.WriteLine(r.ReadLine());
                     }
                 }
 
@@ -92,7 +96,7 @@ namespace MultiCube
                 {
                     if (File.Exists(ConfigFile + ".tmp")) File.Delete(ConfigFile + ".tmp");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // If we can't delete .tmp, we don't care.
                 }

@@ -159,7 +159,7 @@ namespace MultiCube
 
                     break;
                 case OemPeriod:
-                    var thing = Assembly.GetExecutingAssembly().Location;
+                    string thing = Assembly.GetExecutingAssembly().Location;
                     // Start a new process using the path the current .exe was started from and exit the current process.
                     Process.Start("dotnet", $"{thing} {Console.WindowHeight} {Console.WindowWidth} true");
                     Environment.Exit(0);
