@@ -12,12 +12,8 @@ namespace MultiCube
     {
         private const int ProcessTime = 16;
 
-        private const string Usage = "Usage: MultiCube.exe (<height> <width>) <skipResize>\n" +
-                                     "<height>\tconsole window height in characters\ta positive integer\n" +
-                                     "<width>\tconsole window width in characters\ta positive integer\n" +
-                                     "<skipResize>\tskip the resizing prompt\t(\"true\"/\"false\")\n" +
-                                     "All parameters are optional, though if you provide height or width," +
-                                     "you must provide both values.";
+        private const string Usage = "Usage: MultiCube.exe <skipResize>\n" +
+                                     "<skipResize> skip the resizing prompt: (true/false). Default: false";
 
         /// <summary>
         ///     Gives an intro to the user about using the program.
@@ -109,7 +105,7 @@ namespace MultiCube
         /// <param name="height"></param>
         /// <param name="width"></param>
         /// <param name="skipResize"></param>
-        private static void Init(out List<VScreen> screens, int height, int width, bool skipResize)
+        private static void Init(out List<VScreen> screens, bool skipResize)
         {
             Console.Title = "MultiCube";
 
@@ -170,33 +166,22 @@ namespace MultiCube
             // Guaranteed to be set to non-null value later on.
             List<VScreen> screens;
 
-            /* Usage: MultiCube.exe (<height> <width>) <skipResize> 
-               <height> console window height in characters : a positive integer
-               <width> console window width in characters : a positive integer
-               <skipResize> skip the resizing prompt : ("true"/"false")
-               All parameters are optional, though if you provide height or width,
-               you must provide both of them.
+            /* Usage: MultiCube.exe <skipResize>
+               <skipResize> skip the resizing prompt: ("true"/"false"). Default: false
              */
 
-            if (args.Length == 1 && args[0].Contains("help"))
+            if (args.Length >= 1 && args[0].Contains("help"))
             {
                 Console.WriteLine(Usage);
                 return;
             }
-
-            // If there are at least two valid numbers given as argument...
-            if (args.Length > 1 && int.TryParse(args[0], out int height) && int.TryParse(args[1], out int width))
-                // ...then check if there is a third argument that is either "true" or "false"...
-                if (args.Length > 2 && bool.TryParse(args[2], out bool skipResize))
+            
+                // ...then check if there is an argument that is either true or false...
+                if (args.Length >= 1 && bool.TryParse(args[0], out bool skipResize))
                     // If the third argument exists and is valid, pass it to Init()...
-                    Init(out screens, height, width, skipResize);
-                else
-                    // Else, ignore the bool
-                    Init(out screens, height, width, false);
-            // If the numbers aren't valid or given, defaults will be passed into Init().
-            else
-                Init(out screens, (int) (Console.LargestWindowHeight / 1.3), (int) (Console.LargestWindowWidth / 1.3),
-                    false);
+                    Init(out screens, skipResize);
+                // else init with default values
+                else Init(out screens, false);
 
             #region Cursor being visible workaround
 

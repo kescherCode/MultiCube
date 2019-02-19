@@ -73,6 +73,7 @@ namespace MultiCube
         public char this[int x, int y]
         {
             get => Grid[x, y];
+            // ReSharper disable once UnusedMember.Global
             set => Push(value, x, y);
         }
 
