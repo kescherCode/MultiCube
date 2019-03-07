@@ -175,13 +175,13 @@ namespace MultiCube
                 Console.WriteLine(Usage);
                 return;
             }
-            
-                // ...then check if there is an argument that is either true or false...
-                if (args.Length >= 1 && bool.TryParse(args[0], out bool skipResize))
-                    // If the third argument exists and is valid, pass it to Init()...
-                    Init(out screens, skipResize);
-                // else init with default values
-                else Init(out screens, false);
+
+            // ...then check if there is an argument that is either true or false...
+            if (args.Length >= 1 && bool.TryParse(args[0], out bool skipResize))
+                // If the third argument exists and is valid, pass it to Init()...
+                Init(out screens, skipResize);
+            // else init with default values
+            else Init(out screens, false);
 
             #region Cursor being visible workaround
 
@@ -214,7 +214,7 @@ namespace MultiCube
             // A counter for re-enabling the intro if it was disabled. Look at ScreenContainer.ProcessKeypress() to see how it's used
             byte enableCombination = 0;
 #if DEBUG
-            var fps = 0;
+            int fps = 0;
 
             #region Print frames per second
 
