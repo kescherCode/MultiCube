@@ -236,7 +236,6 @@ namespace MultiCube
             {
                 await Task.Run(() =>
                 {
-                    if (!Console.KeyAvailable) return;
                     ConsoleKeyInfo keyPress = Console.ReadKey(true);
 
                     sc[sel].ProcessKeypress(ref keyPress, ref rotationFactor, ref exit, sel,
