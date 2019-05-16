@@ -1,10 +1,7 @@
 cd MultiCube
-dotnet build -c Release
-dotnet publish -c Release -r win-x86 -o bin/publish/win-x86
 dotnet publish -c Release -r win-x64 -o bin/publish/win-x64
-dotnet publish -c Release -r win-arm -o bin/publish/win-arm
-dotnet publish -c Release -r win-arm64 -o bin/publish/win-arm64
+..\warp-packer --arch windows-x64 --input_dir bin/publish/win-x64 --exec MultiCube.exe --output bin/publish/MultiCube-win-x64.exe
 dotnet publish -c Release -r osx-x64 -o bin/publish/osx-x64
+..\warp-packer --arch osx-x64 --input_dir bin/publish/osx-x64 --exec MultiCube --output bin/publish/MultiCube-osx-64
 dotnet publish -c Release -r linux-x64 -o bin/publish/linux-x64
-dotnet publish -c Release -r linux-musl-x64 -o bin/publish/linux-musl-x64
-dotnet publish -c Release -r linux-arm -o bin/publish/linux-arm
+..\warp-packer --arch linux-x64 --input_dir bin/publish/linux-x64 --exec MultiCube --output bin/publish/MultiCube-linux-x64

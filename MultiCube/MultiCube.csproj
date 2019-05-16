@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm;win-arm64;osx-x64;linux-x64;linux-arm</RuntimeIdentifiers>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <StartupObject>MultiCube.Program</StartupObject>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <AssemblyVersion>2.3.0.0</AssemblyVersion>
-    <Version>2.3</Version>
+    <AssemblyVersion>2.5.0.0</AssemblyVersion>
+    <Version>2.5</Version>
     <Authors>Jeremy Kescher</Authors>
     <Company>&lt;none&gt;</Company>
   </PropertyGroup>
