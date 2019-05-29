@@ -37,7 +37,9 @@ Press the **.** (period, dot) key to open a new instance of the program and end 
 
 ## Download
 
-Either [download the source directly](https://github.com/kescherCode/MultiCube/archive/master.zip) and then open the project in Microsoft Visual Studio 2017 (be sure to have .NET Framework 4.7.2 installed), or just grab a pre-built binary file from the [releases](https://github.com/kescherCode/MultiCube/releases) page!
+Either [download the source directly](https://github.com/kescherCode/MultiCube/archive/master.zip) and then open the project in Microsoft Visual Studio 2019 (be sure to have .NET Core 2.2 installed), or just grab a pre-built binary file from the [releases](https://github.com/kescherCode/MultiCube/releases) page!
+
+Note: Currently, dotnetcore binaries are huge. I highly dislike that, however, I really wanted MultiCube to be a bit better at being cross-platform, and I'm optimistic that this will change in the near future.
 
 ## Screenshot
 
