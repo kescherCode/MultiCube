@@ -32,13 +32,13 @@ namespace MultiCube
             if (x != 0d)
             {
                 // X
-                double rad = x * Math.PI / 180d;
+                var rad = x * Math.PI / 180d;
 
-                double cosA = Math.Cos(rad);
-                double sinA = Math.Sin(rad);
+                var cosA = Math.Cos(rad);
+                var sinA = Math.Sin(rad);
 
                 // Old Y coordinate
-                double old = Y;
+                var old = Y;
                 // New Y and Z coordinates'
                 Y = Y * cosA - Z * sinA;
                 Z = old * sinA + Z * cosA;
@@ -47,13 +47,13 @@ namespace MultiCube
             if (y != 0d)
             {
                 // Y
-                double rad = y * Math.PI / 180d;
+                var rad = y * Math.PI / 180d;
 
-                double cosA = Math.Cos(rad);
-                double sinA = Math.Sin(rad);
+                var cosA = Math.Cos(rad);
+                var sinA = Math.Sin(rad);
 
                 // Old X coordinate
-                double old = X;
+                var old = X;
                 // New X and Z coordinates'
                 X = Z * sinA + X * cosA;
                 Z = Z * cosA - old * sinA;
@@ -62,13 +62,13 @@ namespace MultiCube
             if (z == 0d) return;
             {
                 // Z
-                double rad = z * Math.PI / 180d;
+                var rad = z * Math.PI / 180d;
 
-                double cosA = Math.Cos(rad);
-                double sinA = Math.Sin(rad);
+                var cosA = Math.Cos(rad);
+                var sinA = Math.Sin(rad);
 
                 // Old X coordinate
-                double old = X;
+                var old = X;
                 // New X and Y axis'
                 X = X * cosA - Y * sinA;
                 Y = Y * cosA + old * sinA;
@@ -78,26 +78,26 @@ namespace MultiCube
         // ReSharper disable UnusedMember.Global
         public Scalar3D RotateX(double angle)
         {
-            double radius = angle * Math.PI / 180d;
+            var radius = angle * Math.PI / 180d;
 
-            double cosA = Math.Cos(radius);
-            double sinA = Math.Sin(radius);
+            var cosA = Math.Cos(radius);
+            var sinA = Math.Sin(radius);
 
-            double oldY = Y;
+            var oldY = Y;
             // New Y and Z coordinates'
-            double newY = Y * cosA - Z * sinA;
-            double newZ = oldY * sinA + Z * cosA;
+            var newY = Y * cosA - Z * sinA;
+            var newZ = oldY * sinA + Z * cosA;
             return new Scalar3D(X, newY, newZ);
         }
 
         public Scalar3D RotateY(double angle)
         {
-            double radius = angle * Math.PI / 180d;
+            var radius = angle * Math.PI / 180d;
 
-            double cosA = Math.Cos(radius);
-            double sinA = Math.Sin(radius);
+            var cosA = Math.Cos(radius);
+            var sinA = Math.Sin(radius);
 
-            double oldX = X;
+            var oldX = X;
             // New X and Z coordinates'
             X = Z * sinA + X * cosA;
             Z = Z * cosA - oldX * sinA;
@@ -106,12 +106,12 @@ namespace MultiCube
 
         public Scalar3D RotateZ(double angle)
         {
-            double radius = angle * Math.PI / 180d;
+            var radius = angle * Math.PI / 180d;
 
-            double cosA = Math.Cos(radius);
-            double sinA = Math.Sin(radius);
+            var cosA = Math.Cos(radius);
+            var sinA = Math.Sin(radius);
 
-            double oldX = X;
+            var oldX = X;
             // New X and Y axis'
             X = X * cosA - Y * sinA;
             Y = Y * cosA + oldX * sinA;
@@ -122,7 +122,7 @@ namespace MultiCube
         // Project the current Point into 2D plotted space using X and Y axis'
         public Scalar3D Project(double projectionSize, double fov)
         {
-            double factor = projectionSize / (fov + Z);
+            var factor = projectionSize / (fov + Z);
             return new Scalar3D(X * factor, -Y * factor);
         }
 
@@ -174,7 +174,7 @@ namespace MultiCube
             return !left.Equals(right);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
                 return false;
@@ -184,9 +184,8 @@ namespace MultiCube
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public bool Equals(Scalar3D scalar3D)
+        public bool Equals(Scalar3D point)
         {
-            Scalar3D point = scalar3D;
             return X.Equals(point.X) && Y.Equals(point.Y) && Z.Equals(point.Z);
         }
 

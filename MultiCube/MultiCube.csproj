@@ -2,14 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <StartupObject>MultiCube.Program</StartupObject>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <AssemblyVersion>2.5.0.0</AssemblyVersion>
-    <Version>2.5</Version>
-    <Authors>Jeremy Kescher</Authors>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <Version>3.0</Version>
+    <Authors>kescher</Authors>
     <Company>&lt;none&gt;</Company>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

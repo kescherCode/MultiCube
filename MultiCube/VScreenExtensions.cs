@@ -7,7 +7,7 @@ namespace MultiCube
     /// <summary>
     ///     Extension methods for VScreen.
     /// </summary>
-    internal static class VScreenBorders
+    internal static class VScreenExtensions
     {
         /// <summary>
         ///     Prints borders around the screen.
@@ -21,11 +21,11 @@ namespace MultiCube
         {
             lock (ConsoleLock)
             {
-                ConsoleColor prevColor = Console.ForegroundColor;
+                var prevColor = Console.ForegroundColor;
                 Console.ForegroundColor = color;
                 // Print vertical right-hand screen border
                 Console.CursorLeft = screen.XOffset + screen.WindowWidth;
-                for (int y = 0; y < screen.WindowHeight; ++y)
+                for (var y = 0; y < screen.WindowHeight; ++y)
                     try
                     {
                         Console.CursorTop = screen.YOffset + y;
@@ -42,7 +42,7 @@ namespace MultiCube
                 Console.CursorTop = screen.YOffset + screen.WindowHeight;
                 Console.CursorLeft = screen.XOffset;
                 var sb = new StringBuilder();
-                for (int x = 0; x <= screen.WindowWidth; ++x)
+                for (var x = 0; x <= screen.WindowWidth; ++x)
                     sb.Append(horizontalBorderChar);
                 Console.Write(sb);
 

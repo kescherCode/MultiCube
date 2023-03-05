@@ -14,73 +14,73 @@ namespace MultiCube
         {
             #region Lines between corners of a cube
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = -1, Z = -1},
                 B = new Scalar3D {X = -1, Y = -1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = -1, Z = 1},
                 B = new Scalar3D {X = 1, Y = -1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = -1, Z = 1},
                 B = new Scalar3D {X = -1, Y = -1, Z = 1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = -1, Y = -1, Z = 1},
                 B = new Scalar3D {X = -1, Y = -1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = -1, Y = 1, Z = 1},
                 B = new Scalar3D {X = -1, Y = -1, Z = 1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = -1, Y = 1, Z = 1},
                 B = new Scalar3D {X = -1, Y = 1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = -1, Y = 1, Z = -1},
                 B = new Scalar3D {X = -1, Y = -1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = 1, Z = -1},
                 B = new Scalar3D {X = 1, Y = -1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = 1, Z = -1},
                 B = new Scalar3D {X = -1, Y = 1, Z = -1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = 1, Z = 1},
                 B = new Scalar3D {X = 1, Y = -1, Z = 1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = 1, Z = 1},
                 B = new Scalar3D {X = -1, Y = 1, Z = 1}
             },
 
-            new LineData
+            new()
             {
                 A = new Scalar3D {X = 1, Y = 1, Z = 1},
                 B = new Scalar3D {X = 1, Y = 1, Z = -1}
@@ -141,23 +141,23 @@ namespace MultiCube
         /// <param name="screen">VScreen instance to print to</param>
         public void ProjectToVScreen(VScreen screen)
         {
-            foreach (LineData line in Lines)
+            foreach (var line in Lines)
             {
-                Scalar3D diff = line.A - line.B;
-                for (int j = 0; j < _ledgeStep; ++j)
+                var diff = line.A - line.B;
+                for (var j = 0; j < _ledgeStep; ++j)
                 {
                     // Find a point on the line between A and B.
-                    Scalar3D p = line.A + (j / _ledgeLength - 1) * diff;
+                    var p = line.A + (j / _ledgeLength - 1) * diff;
                     // Moves the point to where it is if the cube is rotated
                     p.Rotate(_angleX, _angleY, _angleZ);
                     // Projects the point into 2d space. The parameters act as a kind of camera setting.
-                    Scalar3D q = p.Project(_size, _fov);
+                    var q = p.Project(_size, _fov);
                     // Choosing the correct screen coordinates to print at
-                    int x = (int) ((q.X + screen.WindowWidth * ViewFactor) / PointDivisor);
-                    int y = (int) ((q.Y + screen.WindowHeight * ViewFactor) / PointDivisor);
+                    var x = (int) ((q.X + screen.WindowWidth * ViewFactor) / PointDivisor);
+                    var y = (int) ((q.Y + screen.WindowHeight * ViewFactor) / PointDivisor);
                     // Pushes the character to the screen
-                    if (screen[x, y] != CubeCharFG)
-                        screen.Push(p.Z < 0.3d ? CubeCharFG : CubeCharBG, x, y);
+                    if (screen[x, y] != CubeCharFg)
+                        screen.Push(p.Z < 0.3d ? CubeCharFg : CubeCharBg, x, y);
                 }
             }
         }

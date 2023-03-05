@@ -11,25 +11,39 @@ namespace MultiCube
     /// </summary>
     public static class Settings
     {
-        private const string ConfigFile = "./MultiCube.config";
+        private static readonly string ConfigDirectory =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MultiCube");
 
-        private static readonly Dictionary<string, string> Config = new Dictionary<string, string>();
+        private static readonly string ConfigFile =
+            Path.Combine(ConfigDirectory, "MultiCube.config");
+
+        private static readonly Dictionary<string, string> Config = new();
 
         static Settings()
         {
-            if (!File.Exists(ConfigFile))
-                File.AppendAllText(ConfigFile, string.Empty, UTF8);
+            try
+            {
+                if (!File.Exists(ConfigFile))
+                {
+                    Directory.CreateDirectory(ConfigDirectory);
+                    ShowIntro = ShowIntro;
+                }
+            }
+            catch
+            {
+                // Probably a permission or filesystem issue we can't fix
+            }
 
             try
             {
-                using (var r = new StreamReader(ConfigFile, UTF8))
+                using var r = new StreamReader(ConfigFile, UTF8);
+                while (!r.EndOfStream)
                 {
-                    while (!r.EndOfStream)
-                    {
-                        string[] values = r.ReadLine()?.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
-                        if (values != null && values.Length == 2)
-                            Config[values[0]] = values[1];
-                    }
+                    var line = r.ReadLine();
+                    if (line == null || line.StartsWith('#')) continue;
+                    var values = line?.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
+                    if (values is { Length: 2 })
+                        Config[values[0]] = values[1];
                 }
             }
             catch (Exception e)
@@ -45,10 +59,9 @@ namespace MultiCube
         public static bool ShowIntro
         {
             // Default value: true
-            // Try getting value from Config. If unsuccessful, return default value, else: Try to parse value. If unsuccessful, return default value, else: return parsed value;
             get =>
-                !Config.TryGetValue("showIntro", out string configStr) ||
-                !bool.TryParse(configStr.ToLower(), out bool val) || val;
+                !Config.TryGetValue("showIntro", out var configStr) ||
+                !bool.TryParse(configStr.ToLower(), out var val) || val;
             set => WriteToConfig(new KeyValuePair<string, string>("showIntro", value.ToString()));
         }
 
@@ -59,16 +72,17 @@ namespace MultiCube
             {
                 using (var w = new StreamWriter(ConfigFile + ".tmp", false))
                 {
-                    using (var r = new StreamReader(ConfigFile, UTF8))
+                    try
                     {
-                        bool applied = false;
+                        using var r = new StreamReader(ConfigFile, UTF8);
+                        var applied = false;
                         while (!r.EndOfStream)
                         {
-                            string line = r.ReadLine();
-                            string[] pair = line?.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
-                            if (pair == null || pair.Length >= 2) continue;
+                            var line = r.ReadLine();
+                            var pair = line?.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
+                            if (pair is not { Length: 2 }) continue;
 
-                            if (pair[0].Contains(configPair.Key) && !applied)
+                            if (pair[0].StartsWith(configPair.Key) && !applied)
                             {
                                 w.WriteLine($"{configPair.Key}:{configPair.Value}");
                                 applied = true;
@@ -81,24 +95,19 @@ namespace MultiCube
 
                         if (!applied) w.WriteLine($"{configPair.Key}:{configPair.Value}");
                     }
-                }
-
-                using (var w = new StreamWriter(ConfigFile, false))
-                {
-                    using (var r = new StreamReader(ConfigFile + ".tmp", UTF8))
+                    catch
                     {
-                        while (!r.EndOfStream)
-                            w.WriteLine(r.ReadLine());
+                        // Probably a permission or filesystem issue we can't fix
                     }
                 }
 
                 try
                 {
-                    if (File.Exists(ConfigFile + ".tmp")) File.Delete(ConfigFile + ".tmp");
+                    File.Move(ConfigFile + ".tmp", ConfigFile, true);
                 }
-                catch (Exception)
+                catch
                 {
-                    // If we can't delete .tmp, we don't care.
+                    // Probably a permission or filesystem issue we can't fix
                 }
             }
             catch (Exception e)

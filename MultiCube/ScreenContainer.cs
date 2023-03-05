@@ -28,7 +28,7 @@ namespace MultiCube
             Screen.Output();
         }
 
-        public VScreen Screen { get; }
+        public VScreen Screen { get; set; }
         public Cube Cube { get; }
 
         // Flag for manual (true) or automatic (false) cube movement.
@@ -55,13 +55,18 @@ namespace MultiCube
                 // If shift is pressed, speed should be slowed down.
                 // If alt is pressed, speed should be sped up.
                 // If both or none are pressed, speed should be set to the default value.
-                bool altDown = (keyPress.Modifiers & Alt) != 0;
-                bool shiftDown = (keyPress.Modifiers & Shift) != 0;
+                var altDown = (keyPress.Modifiers & Alt) != 0;
+                var shiftDown = (keyPress.Modifiers & Shift) != 0;
                 if (shiftDown && !altDown)
                     rotationFactor = HalfFactor;
                 else if (altDown && !shiftDown)
                     rotationFactor = DoubleFactor;
                 else rotationFactor = NormalFactor;
+            }
+
+            if (keyPress.Key is not UpArrow and not DownArrow and not LeftArrow and not RightArrow)
+            {
+                enableCombination = 0;
             }
 
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -148,24 +153,20 @@ namespace MultiCube
                     enableCombination = enableCombination == 2 ? (byte) 3 : (byte) 0;
                     break;
                 case RightArrow:
-                    if (enableCombination == 3) enableCombination = 0;
-
-                    ShowIntro = true;
-                    lock (ConsoleLock)
+                    if (enableCombination == 3)
                     {
-                        Console.SetCursorPosition(0, Console.WindowHeight - 1);
-                        Console.Write("[Registry] Tutorial enabled!");
+                        enableCombination = 0;
+
+                        ShowIntro = true;
+                        lock (ConsoleLock)
+                        {
+                            Console.SetCursorPosition(0, Console.WindowHeight - 1);
+                            Console.Write("[Registry] Tutorial enabled!");
+                        }
                     }
 
                     break;
-                case OemPeriod:
-                    string thing = Assembly.GetExecutingAssembly().Location;
-                    // Start a new process using the path the current .exe was started from and exit the current process.
-                    Process.Start("dotnet", $"{thing} {Console.WindowHeight} {Console.WindowWidth} true");
-                    Environment.Exit(0);
-                    break;
                 default:
-                    enableCombination = 0;
                     break;
 
                 #endregion

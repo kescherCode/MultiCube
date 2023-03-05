@@ -40,8 +40,8 @@ namespace MultiCube
 
             Grid = new char[width, height];
             _empty = new char[width, height];
-            for (int x = 0; x < width; ++x)
-            for (int y = 0; y < height; ++y)
+            for (var x = 0; x < width; ++x)
+            for (var y = 0; y < height; ++y)
                 Grid[x, y] = _empty[x, y] = ' ';
 
             WindowWidth = width;
@@ -90,8 +90,8 @@ namespace MultiCube
         {
             var lines = new char[WindowWidth, WindowHeight];
 
-            for (int x = 0; x < WindowWidth; ++x)
-            for (int y = 0; y < WindowHeight; ++y)
+            for (var x = 0; x < WindowWidth; ++x)
+            for (var y = 0; y < WindowHeight; ++y)
                 lines[x, y] = Grid[x, y];
 
             if (clearBeforehand)
@@ -132,17 +132,16 @@ namespace MultiCube
 
         /// <summary>
         ///     Outputs everything on the buffer if anything has changed.
-        ///     Faster than now removed FullOutput() or Refresh() methods.
         /// </summary>
         public void Output()
         {
             if (!Changed) return;
 
             var line = new StringBuilder(WindowWidth);
-            for (int y = 0; y < WindowHeight; ++y)
+            for (var y = 0; y < WindowHeight; ++y)
             {
                 line.Clear();
-                for (int x = 0; x < WindowWidth; ++x) line.Append(Grid[x, y]);
+                for (var x = 0; x < WindowWidth; ++x) line.Append(Grid[x, y]);
 
                 lock (ConsoleLock)
                 {
