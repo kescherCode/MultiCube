@@ -161,7 +161,7 @@ namespace MultiCube
                         lock (ConsoleLock)
                         {
                             Console.SetCursorPosition(0, Console.WindowHeight - 1);
-                            Console.Write("[Registry] Tutorial enabled!");
+                            Console.Write("[Config] Tutorial enabled!");
                         }
                     }
 

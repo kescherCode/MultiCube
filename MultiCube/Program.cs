@@ -90,7 +90,7 @@ internal static class Program
                         break;
                     case F:
                         Settings.ShowIntro = false;
-                        Console.WriteLine("[Registry] Tutorial disabled.");
+                        Console.WriteLine("[Config] Tutorial disabled.");
                         break;
                     default:
                         exit = true;
